@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slides — Midori Takahashi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #f2f2f2;
+  --card-bg: #ffffff;
+  --ink: #1a1a1a;
+  --ink-soft: #444;
+  --ink-faint: #888;
+  --accent: #c4341c;
+  --line: #e4e4e4;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  padding: 64px 24px 96px;
+}
+
+header {
+  max-width: 1120px;
+  margin: 0 auto 56px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 40px;
+}
+
+.site-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+h1 {
+  font-size: 42px;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.subtitle {
+  margin-top: 10px;
+  color: var(--ink-faint);
+  font-size: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em;
+}
+
+.grid {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  border: 1px solid var(--line);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.10);
+}
+
+.preview {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background: #fafafa;
+  border-bottom: 1px solid var(--line);
+}
+
+.preview iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1440px;
+  height: 900px;
+  transform-origin: top left;
+  pointer-events: none;
+  border: none;
+}
+
+.card-body {
+  padding: 18px 22px 22px;
+}
+
+.card-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.card-meta {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 640px) {
+  h1 { font-size: 30px; }
+  body { padding: 40px 16px 64px; }
+  .grid { gap: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="site-tag">slides</div>
+  <h1>Midori's Tech Talks</h1>
+  <p class="subtitle">発表スライド一覧</p>
+</header>
+
+<div class="grid">
+
+  <a class="card" href="vercel-vol1-deploy-flow.html">
+    <div class="preview">
+      <iframe src="vercel-vol1-deploy-flow.html" loading="lazy" title="Vercel の中身どうなってるの？ Vol.1" sandbox="allow-same-origin"></iframe>
+    </div>
+    <div class="card-body">
+      <div class="card-tag">slides</div>
+      <div class="card-title">Vercel の中身どうなってるの？ Vol.1</div>
+      <div class="card-meta">14 slides</div>
+    </div>
+  </a>
+
+  <a class="card" href="vercel-vol2-deeper.html">
+    <div class="preview">
+      <iframe src="vercel-vol2-deeper.html" loading="lazy" title="Vercel の中身どうなってるの？ Vol.2" sandbox="allow-same-origin"></iframe>
+    </div>
+    <div class="card-body">
+      <div class="card-tag">slides</div>
+      <div class="card-title">Vercel の中身どうなってるの？ Vol.2</div>
+      <div class="card-meta">12 slides</div>
+    </div>
+  </a>
+
+  <a class="card" href="vercel-vol3-deepest.html">
+    <div class="preview">
+      <iframe src="vercel-vol3-deepest.html" loading="lazy" title="Vercel の中身どうなってるの？ Vol.3" sandbox="allow-same-origin"></iframe>
+    </div>
+    <div class="card-body">
+      <div class="card-tag">slides</div>
+      <div class="card-title">Vercel の中身どうなってるの？ Vol.3</div>
+      <div class="card-meta">12 slides</div>
+    </div>
+  </a>
+
+  <a class="card" href="chrome-tab-lifecycle.html">
+    <div class="preview">
+      <iframe src="chrome-tab-lifecycle.html" loading="lazy" title="タブはどこから来てどこへ消えるのか" sandbox="allow-same-origin"></iframe>
+    </div>
+    <div class="card-body">
+      <div class="card-tag">slides</div>
+      <div class="card-title">タブはどこから来てどこへ消えるのか</div>
+      <div class="card-meta">13 slides</div>
+    </div>
+  </a>
+
+  <a class="card" href="complexity-budget.html">
+    <div class="preview">
+      <iframe src="complexity-budget.html" loading="lazy" title="Complexity Budget" sandbox="allow-same-origin"></iframe>
+    </div>
+    <div class="card-body">
+      <div class="card-tag">slides</div>
+      <div class="card-title">Complexity Budget</div>
+      <div class="card-meta">23 slides</div>
+    </div>
+  </a>
+
+</div>
+
+<script>
+  // iframeをコンテナ幅に合わせてスケーリング
+  function scaleIframes() {
+    document.querySelectorAll('.preview').forEach(preview => {
+      const iframe = preview.querySelector('iframe');
+      const scale = preview.offsetWidth / 1440;
+      iframe.style.transform = `scale(${scale})`;
+      preview.style.height = (900 * scale) + 'px';
+    });
+  }
+
+  const ro = new ResizeObserver(scaleIframes);
+  document.querySelectorAll('.preview').forEach(el => ro.observe(el));
+  scaleIframes();
+</script>
+
+</body>
+</html>
