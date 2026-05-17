@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complexity Budget</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #ffffff;
+  --ink: #1a1a1a;
+  --ink-soft: #444;
+  --ink-faint: #888;
+  --accent: #c4341c;
+  --line: #ddd;
+  --green: #2d7a3e;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Noto Sans JP', sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  padding: 60px 80px 80px;
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.slide.active { display: flex; }
+
+.tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 18px;
+  font-weight: 500;
+}
+
+h2 {
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 32px;
+  letter-spacing: -0.01em;
+}
+
+h2 .red { color: var(--accent); }
+
+.cover { justify-content: center; }
+
+.cover .tag {
+  font-size: 22px;
+  margin-bottom: 32px;
+}
+
+.cover h1 {
+  font-size: 120px;
+  font-weight: 900;
+  line-height: 1.0;
+  margin-bottom: 36px;
+  letter-spacing: -0.03em;
+}
+
+.cover h1 .red { color: var(--accent); }
+
+.cover .sub {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.cover .sub .accent {
+  background: linear-gradient(transparent 60%, #ffd5cd 60%);
+  padding: 0 4px;
+}
+
+.two {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  gap: 0;
+  align-items: stretch;
+  margin-top: 8px;
+}
+
+.two .col {
+  border: 3px solid var(--ink);
+  padding: 32px 36px;
+}
+
+.two .arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  font-weight: 900;
+  color: var(--accent);
+}
+
+.two .col .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--accent);
+  margin-bottom: 12px;
+  letter-spacing: 0.1em;
+}
+
+.two .col .term {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+
+.two .col .term .red { color: var(--accent); }
+
+.two .col ul li {
+  font-size: 22px;
+  line-height: 1.65;
+  list-style: none;
+  padding: 10px 0 10px 28px;
+  position: relative;
+  font-weight: 500;
+}
+
+.two .col ul li::before {
+  content: '・';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.scenario-box {
+  background: #f8f5ec;
+  padding: 36px 44px;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.65;
+  margin-bottom: 36px;
+  border-left: 8px solid var(--accent);
+}
+
+.scenario-box .small {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  display: block;
+  margin-top: 12px;
+}
+
+.vs-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 1fr;
+  gap: 0;
+  align-items: stretch;
+}
+
+.vs-row .option {
+  border: 3px solid var(--ink);
+  padding: 28px 32px;
+  text-align: center;
+}
+
+.vs-row .option .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--accent);
+  margin-bottom: 10px;
+  letter-spacing: 0.1em;
+}
+
+.vs-row .option .name {
+  font-size: 48px;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.vs-row .option .desc {
+  font-size: 20px;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.vs-row .vs-x {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  font-weight: 900;
+  color: var(--accent);
+}
+
+.tail {
+  margin-top: 28px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.intro {
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.grid-3 .card {
+  border: 3px solid var(--ink);
+  padding: 18px 22px;
+}
+
+.grid-3 .card .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--accent);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.grid-3 .card .name-en {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.grid-3 .card .name-jp {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.cri-head { margin-bottom: 32px; }
+
+.cri-head .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  color: var(--accent);
+  margin-bottom: 12px;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+.cri-head h2 {
+  font-size: 72px;
+  font-weight: 900;
+  margin-bottom: 8px;
+  line-height: 1.05;
+}
+
+.cri-head .en {
+  font-size: 28px;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.cri-body {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 40px;
+  flex: 1;
+}
+
+.cri-q {
+  background: #f8f5ec;
+  border-left: 8px solid var(--accent);
+  padding: 24px 28px;
+  margin-bottom: 22px;
+}
+
+.cri-q .q-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  color: var(--accent);
+  margin-bottom: 8px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.cri-q .q-text {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.cri-check {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+.cri-list {
+  list-style: none;
+  margin-bottom: 18px;
+}
+
+.cri-list li {
+  font-size: 21px;
+  line-height: 1.55;
+  padding: 10px 0 10px 32px;
+  position: relative;
+  font-weight: 500;
+}
+
+.cri-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.cri-list li b { font-weight: 900; }
+
+.cri-tail {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  padding-top: 16px;
+  border-top: 2px solid var(--line);
+}
+
+.cri-refs {
+  background: #f4f1ea;
+  padding: 22px 26px;
+}
+
+.cri-refs .refs-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--accent);
+  margin-bottom: 14px;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+}
+
+.cri-refs .ref-item {
+  font-size: 18px;
+  line-height: 1.5;
+  padding: 8px 0;
+  border-bottom: 1px dashed #d4cdb8;
+}
+
+.cri-refs .ref-item:last-child { border-bottom: none; }
+
+.cri-refs .ref-item .t {
+  font-weight: 700;
+  display: block;
+}
+
+.cri-refs .ref-item .a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: var(--ink-faint);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+pre.code {
+  background: #1a1a1a;
+  color: #e8e3d7;
+  padding: 20px 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 17px;
+  line-height: 1.7;
+  margin: 12px 0;
+  font-weight: 500;
+}
+
+.recap {
+  background: #f8f5ec;
+  border-left: 8px solid var(--accent);
+  padding: 24px 28px;
+  margin-bottom: 28px;
+}
+
+.recap .l {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--accent);
+  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+.recap .t {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.recap .t b {
+  background: linear-gradient(transparent 60%, #ffd5cd 60%);
+  font-weight: 900;
+}
+
+.disc-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.disc-col {
+  border: 3px solid var(--ink);
+  padding: 22px 26px;
+}
+
+.disc-col.a { border-color: var(--accent); }
+.disc-col.b { border-color: var(--green); }
+
+.disc-col .opt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--accent);
+  margin-bottom: 6px;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+.disc-col.b .opt { color: var(--green); }
+
+.disc-col .nm {
+  font-size: 36px;
+  font-weight: 900;
+  margin-bottom: 16px;
+  line-height: 1.1;
+}
+
+.disc-col .lab {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+
+.disc-col ul { list-style: none; }
+
+.disc-col ul li {
+  font-size: 19px;
+  line-height: 1.55;
+  padding: 8px 0 8px 24px;
+  position: relative;
+  font-weight: 500;
+}
+
+.disc-col ul li::before {
+  content: '・';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.disc-col.b ul li::before { color: var(--green); }
+
+.disc-col ul li b {
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.prompts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.prompt {
+  background: var(--ink);
+  color: #fff;
+  padding: 18px 22px;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.prompt b {
+  color: #ffb8a8;
+  font-weight: 900;
+}
+
+.bl-intro {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.bl-intro b {
+  font-weight: 900;
+  background: linear-gradient(transparent 60%, #ffd5cd 60%);
+}
+
+.stages {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.stage {
+  border: 3px solid;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.stage.green { border-color: var(--green); }
+.stage.amber { border-color: #c8902a; }
+.stage.red   { border-color: var(--accent); }
+
+.stage .head {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.stage.green .head { color: var(--green); }
+.stage.amber .head { color: #c8902a; }
+.stage.red   .head { color: var(--accent); }
+
+.stage .v {
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 6px;
+}
+
+.stage .v-jp {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-bottom: 18px;
+}
+
+.stage .sig-l {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  color: var(--ink-soft);
+  letter-spacing: 0.06em;
+}
+
+.stage ul {
+  list-style: none;
+  margin-bottom: 16px;
+}
+
+.stage ul li {
+  font-size: 18px;
+  line-height: 1.55;
+  padding: 6px 0 6px 26px;
+  position: relative;
+  font-weight: 500;
+}
+
+.stage ul li::before {
+  position: absolute;
+  left: 0;
+  font-weight: 900;
+  top: 6px;
+  font-size: 16px;
+}
+
+.stage.green ul li::before { content: '✓'; color: var(--green); }
+.stage.amber ul li::before { content: '△'; color: #c8902a; }
+.stage.red   ul li::before { content: '◉'; color: var(--accent); }
+
+.stage .verdict {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 2px dashed var(--line);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.stage .verdict b { font-weight: 900; }
+
+.rule {
+  background: var(--ink);
+  color: #fff;
+  padding: 22px 28px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.rule b {
+  color: #ffb8a8;
+  font-weight: 900;
+}
+
+/* ===== チェックリスト・スコア ===== */
+.score-intro {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+
+.score-intro b {
+  font-weight: 900;
+  background: linear-gradient(transparent 60%, #ffd5cd 60%);
+}
+
+.score-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+.score-col {
+  border: 3px solid var(--ink);
+  padding: 24px 26px;
+}
+
+.score-col.cost { border-color: var(--accent); }
+.score-col.risk { border-color: #2d5fa3; }
+
+.score-col .axis {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.score-col.cost .axis { color: var(--accent); }
+.score-col.risk .axis { color: #2d5fa3; }
+
+.score-col .axis-name {
+  font-size: 32px;
+  font-weight: 900;
+  margin-bottom: 4px;
+  line-height: 1.1;
+}
+
+.score-col .axis-desc {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.score-col table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.score-col table tr {
+  border-bottom: 1px solid var(--line);
+}
+
+.score-col table tr:last-child { border-bottom: none; }
+
+.score-col table td {
+  padding: 9px 0;
+  font-size: 16px;
+  font-weight: 500;
+  vertical-align: top;
+  line-height: 1.4;
+}
+
+.score-col table td.q {
+  padding-right: 12px;
+}
+
+.score-col table td.q b {
+  font-weight: 900;
+  display: block;
+  font-size: 17px;
+}
+
+.score-col table td.q .sub {
+  color: var(--ink-soft);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.score-col table td.pt {
+  width: 80px;
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 17px;
+  white-space: nowrap;
+}
+
+.score-col.cost table td.pt { color: var(--accent); }
+.score-col.risk table td.pt { color: #2d5fa3; }
+
+.score-col .total {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 2px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.score-col .total .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+.score-col .total .max {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.score-col.cost .total .max { color: var(--accent); }
+.score-col.risk .total .max { color: #2d5fa3; }
+
+/* マトリクス */
+.matrix-wrap {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.matrix {
+  display: grid;
+  grid-template-columns: 50px 1fr 1fr;
+  grid-template-rows: 1fr 1fr 50px;
+  gap: 0;
+}
+
+.matrix .y-axis {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: #2d5fa3;
+}
+
+.matrix .x-axis {
+  grid-column: 2 / 4;
+  grid-row: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.cell {
+  border: 2px solid var(--ink);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.cell .pos {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.cell .v {
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.cell .d {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.cell.go-simple { background: #ebf5ed; border-color: var(--green); }
+.cell.go-simple .v { color: var(--green); }
+
+.cell.go-complex { background: #fbeae5; border-color: var(--accent); }
+.cell.go-complex .v { color: var(--accent); }
+
+.cell.yagni { background: #fff5e0; border-color: #c8902a; }
+.cell.yagni .v { color: #c8902a; }
+
+.cell.careful { background: #e8edf5; border-color: #2d5fa3; }
+.cell.careful .v { color: #2d5fa3; }
+
+.case-apply {
+  border: 3px solid var(--ink);
+  padding: 22px 24px;
+}
+
+.case-apply .ca-head {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.case-apply .ca-title {
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 14px;
+  line-height: 1.3;
+}
+
+.case-apply .scores {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.case-apply .s {
+  flex: 1;
+  padding: 12px 14px;
+  border: 2px solid;
+}
+
+.case-apply .s.c { border-color: var(--accent); }
+.case-apply .s.r { border-color: #2d5fa3; }
+
+.case-apply .s .l {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.case-apply .s.c .l { color: var(--accent); }
+.case-apply .s.r .l { color: #2d5fa3; }
+
+.case-apply .s .n {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.case-apply .s.c .n { color: var(--accent); }
+.case-apply .s.r .n { color: #2d5fa3; }
+
+.case-apply .conclu {
+  background: #ebf5ed;
+  border-left: 6px solid var(--green);
+  padding: 12px 16px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.case-apply .conclu b { color: var(--green); font-weight: 900; }
+
+.conclusion { justify-content: center; }
+
+.conclusion .tag {
+  font-size: 24px;
+  margin-bottom: 40px;
+}
+
+.conclusion .main {
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.conclusion .main .em {
+  background: linear-gradient(transparent 60%, #ffd5cd 60%);
+  color: var(--accent);
+}
+
+.page {
+  position: fixed;
+  bottom: 24px;
+  right: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--ink-faint);
+  font-weight: 500;
+  z-index: 10;
+}
+
+.page .cur { color: var(--ink); font-weight: 700; }
+
+.nav {
+  position: fixed;
+  bottom: 20px;
+  left: 32px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+
+.nav button {
+  background: var(--bg);
+  border: 2px solid var(--ink);
+  padding: 6px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.nav button:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+</style>
+</head>
+<body>
+
+<section class="slide cover active">
+  <div class="tag">2年目エンジニアの試行錯誤 / LT</div>
+  <h1>Complexity<br><span class="red">Budget</span>?</h1>
+  <div class="sub">
+    設計のとき、自分は何を考えれば<br>
+    いいんだろう？<span class="accent">…という話</span>です。
+  </div>
+</section>
+
+<section class="slide">
+  <div class="tag">— はじめに</div>
+  <h2>SREには <span class="red">Error Budget</span> があるらしい。<br>……じゃあ設計のときは？</h2>
+
+  <div class="two">
+    <div class="col">
+      <div class="label">SREで聞いたやつ</div>
+      <div class="term">Error Budget</div>
+      <ul>
+        <li>SLO 99.9% なら、0.1% は "壊れてもいい" 余白</li>
+        <li>信頼性を予算として扱うらしい</li>
+        <li>速度と安定のバランスを数字で見る</li>
+      </ul>
+    </div>
+    <div class="arrow">→</div>
+    <div class="col">
+      <div class="label">これ、設計にも応用できる…？</div>
+      <div class="term"><span class="red">Complexity</span><br>Budget</div>
+      <ul>
+        <li>たぶん複雑性も無限には増やせない</li>
+        <li>「この複雑性、今払う必要ある？」と問う</li>
+        <li>シンプル vs 強力 を意識できそう</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="tag">— きっかけ</div>
+  <h2>チームでこういう議論になりました</h2>
+
+  <div class="scenario-box">
+    管理画面で、対象顧客にキャンペーンを一括付与したい。<br>
+    対象は最大で数千人。
+    <span class="small">…これ、どう実装するのがいいんだろう？</span>
+  </div>
+
+  <div class="vs-row">
+    <div class="option">
+      <div class="label">案A</div>
+      <div class="name">ActiveJob</div>
+      <div class="desc">非同期 / バックグラウンド</div>
+    </div>
+    <div class="vs-x">vs</div>
+    <div class="option">
+      <div class="label">案B</div>
+      <div class="name">Batch loop</div>
+      <div class="desc">同期 / 200件ずつ</div>
+    </div>
+  </div>
+
+  <div class="tail">先輩たちで意見が分かれていて、自分はどう判断したらいいのか分からなかった…</div>
+</section>
+
+<section class="slide">
+  <div class="tag">— 調べてみた</div>
+  <h2>判断に使えそうな <span class="red">14 個の観点</span>を集めてみました</h2>
+  <div class="intro">これが正解、というわけではなくて、「今回はどれを重く見るか」を考える材料として、自分なりに本やブログから集めたものです。</div>
+
+  <div class="grid-3">
+    <div class="card"><div class="num">01</div><div class="name-en">Cognitive Load</div><div class="name-jp">認知負荷</div></div>
+    <div class="card"><div class="num">02</div><div class="name-en">Accidental Complexity</div><div class="name-jp">偶発的複雑性</div></div>
+    <div class="card"><div class="num">03</div><div class="name-en">YAGNI</div><div class="name-jp">今要らないものは作らない</div></div>
+    <div class="card"><div class="num">04</div><div class="name-en">Operational Cost</div><div class="name-jp">運用コスト</div></div>
+    <div class="card"><div class="num">05</div><div class="name-en">Observability</div><div class="name-jp">可観測性</div></div>
+    <div class="card"><div class="num">06</div><div class="name-en">Idempotency</div><div class="name-jp">冪等性</div></div>
+    <div class="card"><div class="num">07</div><div class="name-en">Coupling</div><div class="name-jp">結合度</div></div>
+    <div class="card"><div class="num">08</div><div class="name-en">Changeability</div><div class="name-jp">変更容易性</div></div>
+    <div class="card"><div class="num">09</div><div class="name-en">Time to Market</div><div class="name-jp">市場投入速度</div></div>
+    <div class="card"><div class="num">10</div><div class="name-en">Team Skill Fit</div><div class="name-jp">チーム適合性</div></div>
+    <div class="card"><div class="num">11</div><div class="name-en">Failure Isolation</div><div class="name-jp">障害分離</div></div>
+    <div class="card"><div class="num">12</div><div class="name-en">Consistency Req.</div><div class="name-jp">整合性要求</div></div>
+    <div class="card"><div class="num">13</div><div class="name-en">Scalability Horizon</div><div class="name-jp">限界が来るタイミング</div></div>
+    <div class="card"><div class="num">14</div><div class="name-en">Reversibility</div><div class="name-jp">可逆性</div></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 01 / 14</div>
+    <h2>Cognitive Load</h2>
+    <div class="en">認知負荷</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">その仕組み、人間が理解できる範囲に収まってる？</div>
+      </div>
+      <div class="cri-check">「新メンバーに 30 分で説明できるか？」で考えてみる</div>
+      <ul class="cri-list">
+        <li>処理の流れを口頭でなぞって、何分くらいかかりそう？</li>
+        <li>登場人物（worker / queue / Redis…）は何種類？</li>
+        <li>本筋を理解するのに、他の概念をいくつ前提にしてる？</li>
+      </ul>
+      <div class="cri-tail">「説明に出てくる固有名詞の数」がそのまま複雑性の重さになるのかも、と思いました。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">Cognitive Load Theory</span><span class="a">John Sweller, 1988</span></div>
+      <div class="ref-item"><span class="t">Team Topologies</span><span class="a">Skelton & Pais, 2019</span></div>
+      <div class="ref-item"><span class="t">A Philosophy of Software Design</span><span class="a">John Ousterhout, 2018</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 02 / 14</div>
+    <h2>Accidental Complexity</h2>
+    <div class="en">偶発的複雑性</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">それって問題の本質？それとも"道具"が連れてきた複雑性？</div>
+      </div>
+      <div class="cri-check">「この機能を消すとき、何を一緒に消すことになる？」と考えてみる</div>
+      <ul class="cri-list">
+        <li>app コード 1 ファイル → これは本質寄りだと思う</li>
+        <li>+ Sidekiq の worker 定義</li>
+        <li>+ Redis の queue 設定</li>
+        <li>+ retry / dead letter の監視 dashboard</li>
+      </ul>
+      <div class="cri-tail">消すときに一緒に剥がすものが多いほど、"道具"が連れてきた複雑性が混ざってるんじゃないか、と感じました。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">No Silver Bullet</span><span class="a">Fred Brooks, 1986</span></div>
+      <div class="ref-item"><span class="t">The Mythical Man-Month</span><span class="a">Fred Brooks, 1975</span></div>
+      <div class="ref-item"><span class="t">Out of the Tar Pit</span><span class="a">Moseley & Marks, 2006</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 03 / 14</div>
+    <h2>YAGNI</h2>
+    <div class="en">今要らないものは作らない / You Aren't Gonna Need It</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">"将来必要そう"だけで、今、複雑性を払ってないかな？</div>
+      </div>
+      <div class="cri-check">"将来必要"って言葉、自分で問い直してみる</div>
+      <ul class="cri-list">
+        <li>"将来スケールする" → いつ？何件で？誰が見積もった？</li>
+        <li>"将来分割する" → 分割候補のドメイン境界は今ある？</li>
+        <li>"将来 worker 増やす" → 直近半年の負荷予測は？</li>
+      </ul>
+      <div class="cri-tail">自分自身、つい「念のため」で先回りしがちなので、要件なのか願望なのか、ちゃんと分けて考えたいなと思いました。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">Extreme Programming Explained</span><span class="a">Kent Beck, 1999</span></div>
+      <div class="ref-item"><span class="t">Yagni (bliki)</span><span class="a">Martin Fowler, 2015</span></div>
+      <div class="ref-item"><span class="t">The Pragmatic Programmer</span><span class="a">Hunt & Thomas, 1999</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 04 / 14</div>
+    <h2>Operational Cost</h2>
+    <div class="en">運用コスト</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">これ、誰が運用する？壊れた夜中、誰が直すんだろう？</div>
+      </div>
+      <div class="cri-check">「土曜の深夜 2 時に障害が出たら？」を想像してみる</div>
+      <ul class="cri-list">
+        <li>誰が一次対応する？その人は仕組みを知ってる？</li>
+        <li>復旧 runbook は何ページくらい必要そう？</li>
+        <li>「対象 1 人だけ再実行」がワンコマンドでできる？</li>
+      </ul>
+      <div class="cri-tail">作る時のコストだけじゃなくて、動かし続けるコスト・直すコストまで含めて考えないと、たぶん痛い目を見るんだろうな…と感じました。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">Site Reliability Engineering</span><span class="a">Beyer et al. (Google), 2016</span></div>
+      <div class="ref-item"><span class="t">The SRE Workbook</span><span class="a">Beyer et al. (Google), 2018</span></div>
+      <div class="ref-item"><span class="t">Accelerate</span><span class="a">Forsgren, Humble, Kim, 2018</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 05 / 14</div>
+    <h2>Observability</h2>
+    <div class="en">可観測性</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">障害が起きたとき、その経路を自分で追える？</div>
+      </div>
+      <div class="cri-check">「ユーザー A だけクーポンが届かなかった」と言われたら…と想像してみる</div>
+<pre class="code">同期 :  log を user_id で grep → 終わり
+
+非同期 :
+  どの request だった？
+   ↓
+  どの job だった？(job_id は紐付いてる?)
+   ↓
+  どの worker が拾った？
+   ↓
+  retry されてる? dead letter?</pre>
+      <div class="cri-tail">問い合わせから原因特定まで何ステップ踏むかで、運用の難易度がだいぶ変わりそうだなと思いました。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">Observability Engineering</span><span class="a">Majors, Fong-Jones, Miranda, 2022</span></div>
+      <div class="ref-item"><span class="t">Distributed Systems Observability</span><span class="a">Cindy Sridharan, 2018</span></div>
+      <div class="ref-item"><span class="t">Dapper (Distributed Tracing)</span><span class="a">Sigelman et al. (Google), 2010</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 06 / 14</div>
+    <h2>Idempotency</h2>
+    <div class="en">冪等性</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">同じ処理が複数回走っても、結果は安全？</div>
+      </div>
+      <div class="cri-check">「同じ処理が 2 回走ったら何が起きる？」を想像してみる</div>
+      <ul class="cri-list">
+        <li>クーポンが 2 枚配られる → 事故…</li>
+        <li>メール通知が 2 通飛ぶ → 信頼を失いそう</li>
+        <li>外部 API への課金 call が 2 回 → 金銭被害</li>
+      </ul>
+      <div class="cri-tail">非同期にした瞬間、「job_id で重複排除する」みたいな責任がコード側に増えるのか…と気づきました。その実装とテストのコストも、見えない予算として払うことになりそうです。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">Designing Data-Intensive Applications</span><span class="a">Martin Kleppmann, 2017</span></div>
+      <div class="ref-item"><span class="t">Enterprise Integration Patterns</span><span class="a">Hohpe & Woolf, 2003</span></div>
+      <div class="ref-item"><span class="t">Exactly-Once Semantics (Kafka)</span><span class="a">Confluent, 2017</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 07 / 14</div>
+    <h2>Coupling</h2>
+    <div class="en">結合度</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">変更したとき、どこまで影響が波及する？</div>
+      </div>
+      <div class="cri-check">「クーポン付与のロジックを少し変えたい」と言われたら…</div>
+      <ul class="cri-list">
+        <li>同期処理 → controller か service 1 ファイルで済みそう</li>
+        <li>非同期 → controller + job + worker + retry + テスト…</li>
+        <li>event chain → 誰が subscribe してるか grep するところから</li>
+      </ul>
+      <div class="cri-tail">「1 つの仕様変更で触るファイル数」って結合度のものさしになりそうだなと。「疎結合のために」って言って非同期化したのに、暗黙の前提で逆に強結合してた、みたいな話も本で読みました。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">Structured Design</span><span class="a">Yourdon & Constantine, 1979</span></div>
+      <div class="ref-item"><span class="t">Domain-Driven Design</span><span class="a">Eric Evans, 2003</span></div>
+      <div class="ref-item"><span class="t">Clean Architecture</span><span class="a">Robert C. Martin, 2017</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 08 / 14</div>
+    <h2>Changeability</h2>
+    <div class="en">変更容易性</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">半年後、これを変更できるかな？</div>
+      </div>
+      <div class="cri-check">「次に似た機能を作るとき、何ファイル変える？」で考えてみる</div>
+      <ul class="cri-list">
+        <li>"ポイント一括付与"を追加するなら、何ファイル新規作成？</li>
+        <li>同じ抽象を使い回せそう？それとも丸ごとコピペ？</li>
+        <li>抽象化しすぎて、1 箇所変えるのに 5 ファイル開いてないかな？</li>
+      </ul>
+      <div class="cri-tail">未来の自分が grep で辿れるか、で考えると分かりやすそう。抽象化って便利だけど、やりすぎると逆に読めなくなるんだなと、最近自分のコード見て思いました…。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">Refactoring</span><span class="a">Martin Fowler, 1999 / 2018</span></div>
+      <div class="ref-item"><span class="t">Building Evolutionary Architectures</span><span class="a">Ford, Parsons, Kua, 2017</span></div>
+      <div class="ref-item"><span class="t">A Philosophy of Software Design</span><span class="a">John Ousterhout, 2018</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 09 / 14</div>
+    <h2>Time to Market</h2>
+    <div class="en">市場投入速度</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">今、一番価値があるのは"完成度"？それとも"速度"？</div>
+      </div>
+      <div class="cri-check">「今、何日遅れると、ビジネス的に何を失う？」を聞いてみる</div>
+      <ul class="cri-list">
+        <li>木曜のキャンペーン開始に間に合わない → 機会損失◯円</li>
+        <li>非同期化を入れるなら +3 日、それは見合うかな？</li>
+        <li>後で非同期化に差し替えるのは現実的？</li>
+      </ul>
+      <div class="cri-tail">「綺麗な設計のために遅れる」のも、「雑なまま出す」のもどっちもリスクで、自分はつい設計に時間をかけすぎがちなので気をつけたいなと思いました。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">The Lean Startup</span><span class="a">Eric Ries, 2011</span></div>
+      <div class="ref-item"><span class="t">Continuous Delivery</span><span class="a">Humble & Farley, 2010</span></div>
+      <div class="ref-item"><span class="t">Worse Is Better</span><span class="a">Richard Gabriel, 1991</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 10 / 14</div>
+    <h2>Team Skill Fit</h2>
+    <div class="en">チーム適合性</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">うちのチームが、理解・保守・拡張できる選択？</div>
+      </div>
+      <div class="cri-check">「PRレビューで詰まる箇所」が、チームの上限を教えてくれそう</div>
+      <ul class="cri-list">
+        <li>そのライブラリ、レビューできる人は何人いる？</li>
+        <li>新人がオンボーディングで詰まりそうなのはどこ？</li>
+        <li>その人が休んだとき、誰が代わる？</li>
+      </ul>
+      <div class="cri-tail">「技術的に正しい」と「うちで運用できる」が同じとは限らないんだな、と最近思うようになりました。自分しか分からない設計を入れちゃうのも怖い…。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">Team Topologies</span><span class="a">Skelton & Pais, 2019</span></div>
+      <div class="ref-item"><span class="t">Conway's Law</span><span class="a">Melvin Conway, 1968</span></div>
+      <div class="ref-item"><span class="t">Choose Boring Technology</span><span class="a">Dan McKinley, 2015</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 11 / 14</div>
+    <h2>Failure Isolation</h2>
+    <div class="en">障害分離</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">壊れたとき、被害をどこで止められそう？</div>
+      </div>
+      <div class="cri-check">「2,000 人中 1,500 人目で失敗した」を想像してみる</div>
+      <ul class="cri-list">
+        <li>巨大 transaction → 全員 rollback、最初からやり直し…</li>
+        <li>200 件 chunk → 1,400 人分は確定、残りからリトライできる</li>
+        <li>非同期 job → 失敗した job だけ手動 retry</li>
+      </ul>
+      <div class="cri-tail">壊れたあとの復旧手順まで含めて考えると、「全部 or 0」より「ちょっとずつ確定」のほうが事故時に楽そうだなと思いました。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">Release It</span><span class="a">Michael Nygard, 2007 / 2018</span></div>
+      <div class="ref-item"><span class="t">Bulkhead Pattern</span><span class="a">Cloud Design Patterns</span></div>
+      <div class="ref-item"><span class="t">Designing Data-Intensive Applications</span><span class="a">Martin Kleppmann, 2017</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 12 / 14</div>
+    <h2>Consistency Requirement</h2>
+    <div class="en">整合性要求</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">本当に"強整合性"が必要？結果整合で済まないかな？</div>
+      </div>
+      <div class="cri-check">「30 秒くらい状態がズレてたら、何が困る？」を考えてみる</div>
+      <ul class="cri-list">
+        <li>「1,500 人だけ付与済み」の状態が見える → 困らなさそう</li>
+        <li>付与されてない人がアクセスする → 翌日でも OK</li>
+        <li>金銭・在庫・予約の atomic 性 → 今回は関係なさそう</li>
+      </ul>
+      <div class="cri-tail">「強整合じゃないと困る」って、技術要件じゃなくて業務要件の話なんだなと整理して気づきました。今回は「最終的に全員に届けばよい」で充分そうです。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">Designing Data-Intensive Applications</span><span class="a">Martin Kleppmann, 2017</span></div>
+      <div class="ref-item"><span class="t">CAP Theorem</span><span class="a">Eric Brewer, 2000</span></div>
+      <div class="ref-item"><span class="t">PACELC</span><span class="a">Daniel Abadi, 2010</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 13 / 14</div>
+    <h2>Scalability Horizon</h2>
+    <div class="en">いつ限界が来るか</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">その規模、"今"本当に問題になってる？</div>
+      </div>
+      <div class="cri-check">"今の規模"を、まず数字で書き出してみる</div>
+      <ul class="cri-list">
+        <li>1 件あたりの処理時間は？ 例: 50ms くらい？</li>
+        <li>対象件数は？ 例: 2,000 件 → 計 100 秒</li>
+        <li>10 倍 (20,000 件 / 16 分) になるのは何ヶ月後？</li>
+      </ul>
+      <div class="cri-tail">"いつ壊れるか"を数字にしてみると、"今いくら払うか"も見えてくる気がしました。10 倍までは耐える設計なら、今は払わない選択肢もありかも、と。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">Structured Programming with go to</span><span class="a">Donald Knuth, 1974</span></div>
+      <div class="ref-item"><span class="t">Numbers Everyone Should Know</span><span class="a">Jeff Dean (Google), 2009</span></div>
+      <div class="ref-item"><span class="t">Choose Boring Technology</span><span class="a">Dan McKinley, 2015</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="cri-head">
+    <div class="num">— 14 / 14</div>
+    <h2>Reversibility</h2>
+    <div class="en">可逆性</div>
+  </div>
+  <div class="cri-body">
+    <div>
+      <div class="cri-q">
+        <div class="q-label">問い</div>
+        <div class="q-text">あとから「やっぱりやめた」ってできる選択？</div>
+      </div>
+      <div class="cri-check">「やっぱりやめます」のコストを想像してみる</div>
+      <ul class="cri-list">
+        <li>同期 → 非同期化 : あとからでも足せる（戻せる扉）</li>
+        <li>非同期 → 同期化 : 呼び出し元全部が job 前提で書き換わってる…</li>
+        <li>Microservice 化 : DB 分割まで進むと、戻すのは数ヶ月仕事</li>
+      </ul>
+      <div class="cri-tail">「戻せる扉」は軽く決めていいけど、「戻せない扉」は慎重に。迷ったら、まず戻せる方を試してみる、というのが自分には合いそうだなと思いました。</div>
+    </div>
+    <div class="cri-refs">
+      <div class="refs-label">REFERENCES</div>
+      <div class="ref-item"><span class="t">One-way / Two-way Doors</span><span class="a">Jeff Bezos, 2015 Letter</span></div>
+      <div class="ref-item"><span class="t">Architecture Decision Records</span><span class="a">Michael Nygard, 2011</span></div>
+      <div class="ref-item"><span class="t">The Pragmatic Programmer</span><span class="a">Hunt & Thomas, 1999</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="tag">— 皆さんに聞いてみたい</div>
+  <h2>…で、<span class="red">皆さんなら</span>どうしますか？</h2>
+
+  <div class="recap">
+    <div class="l">— おさらい</div>
+    <div class="t">管理画面で <b>キャンペーンを一括付与</b>、対象は最大数千人。<br>ActiveJob で非同期化する？ それとも 200件ずつのバッチループで素直に回す？</div>
+  </div>
+
+  <div class="disc-cols">
+    <div class="disc-col a">
+      <div class="opt">案A</div>
+      <div class="nm">ActiveJob</div>
+      <div class="lab">こう考えてる人が多そう</div>
+      <ul>
+        <li><b>Failure Isolation</b> — UI から切り離せる</li>
+        <li><b>Scalability Horizon</b> — 数万件への移行コストが小さい</li>
+        <li><b>Operational Cost</b> — 既存の retry / 監視を流用できる</li>
+        <li><b>UX</b> — ブラウザを閉じても継続する</li>
+      </ul>
+    </div>
+    <div class="disc-col b">
+      <div class="opt">案B</div>
+      <div class="nm">Batch loop</div>
+      <div class="lab">こう考えてる人が多そう</div>
+      <ul>
+        <li><b>Cognitive Load</b> — 上から下に読めば終わる</li>
+        <li><b>YAGNI</b> — 数千件なら queue は今は要らないかも</li>
+        <li><b>Accidental Complexity</b> — Redis / worker を巻き込まない</li>
+        <li><b>Time to Market</b> — 今週リリースに間に合う</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="prompts">
+    <div class="prompt">皆さんなら、<b>どの観点</b>を一番重く見ますか？</div>
+    <div class="prompt">「対象 10 万人」なら、判断は<b>どう変わる</b>？</div>
+    <div class="prompt">過去に「<b>払いすぎた複雑性</b>」の事例ってありますか？</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="tag">— 自分なりのチェックリスト</div>
+  <h2>判断を <span class="red">数字</span> にしてみたい</h2>
+
+  <div class="score-intro">
+    Error Budget みたいに、数字で測れたら相談しやすそうだなと思って、自分なりに <b>2 つの数字</b> を出すチェックリストを作ってみました。<br>
+    <span style="font-size:17px;color:#444;">（思いつきなので、もっと良い指標があれば教えてください！）</span>
+  </div>
+
+  <div class="score-cols">
+    <div class="score-col cost">
+      <div class="axis">COST AXIS</div>
+      <div class="axis-name">Complexity Cost</div>
+      <div class="axis-desc">「複雑にすると、どれくらい高くつく？」</div>
+      <table>
+        <tr><td class="q"><b>登場人物が3種類以上増える？</b><span class="sub">worker, queue, Redis…</span></td><td class="pt">+15</td></tr>
+        <tr><td class="q"><b>新メンバーへの説明が30分で終わらない？</b></td><td class="pt">+15</td></tr>
+        <tr><td class="q"><b>削除するとき5ファイル以上消す？</b></td><td class="pt">+15</td></tr>
+        <tr><td class="q"><b>運用 runbook を新規に書く必要がある？</b></td><td class="pt">+15</td></tr>
+        <tr><td class="q"><b>冪等性の実装責任がコード側に乗る？</b></td><td class="pt">+10</td></tr>
+        <tr><td class="q"><b>1仕様変更で触るファイルが3つ以上？</b></td><td class="pt">+10</td></tr>
+        <tr><td class="q"><b>レビューできる人がチームに2人以下？</b></td><td class="pt">+10</td></tr>
+        <tr><td class="q"><b>後から戻すのが難しい選択？</b></td><td class="pt">+10</td></tr>
+      </table>
+      <div class="total"><span class="label">MAX</span><span class="max">100点</span></div>
+    </div>
+
+    <div class="score-col risk">
+      <div class="axis">RISK AXIS</div>
+      <div class="axis-name">Risk if Simple</div>
+      <div class="axis-desc">「シンプルで行ったら、何がマズい？」</div>
+      <table>
+        <tr><td class="q"><b>失敗の影響が金銭・SLAに直結する？</b></td><td class="pt">+25</td></tr>
+        <tr><td class="q"><b>処理時間が同期では絶対に間に合わない？</b><span class="sub">UIブロック1分超など</span></td><td class="pt">+20</td></tr>
+        <tr><td class="q"><b>複数チームから呼ばれる共通基盤？</b></td><td class="pt">+15</td></tr>
+        <tr><td class="q"><b>リアルタイム性が業務要件として強い？</b></td><td class="pt">+15</td></tr>
+        <tr><td class="q"><b>1年で5〜10倍に伸びる予測がある？</b></td><td class="pt">+10</td></tr>
+        <tr><td class="q"><b>失敗時の手動リカバリが現実的でない規模？</b></td><td class="pt">+10</td></tr>
+        <tr><td class="q"><b>既にシンプル構成で事故が出ている？</b></td><td class="pt">+5</td></tr>
+      </table>
+      <div class="total"><span class="label">MAX</span><span class="max">100点</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="tag">— 2軸で判断する</div>
+  <h2>2 つの数字で <span class="red">象限</span> を見る</h2>
+
+  <div class="score-intro">
+    Cost / Risk の <b>合計点 ≥ 50 を "高"</b> として、4 象限に分けてみました。<br>
+    <span style="font-size:17px;color:#444;">「最初からGoしたほうがいいケース」も、これでちゃんと拾えるはず…！</span>
+  </div>
+
+  <div class="matrix-wrap">
+    <div class="matrix">
+      <div class="y-axis">Risk if Simple →</div>
+      <div class="cell go-complex">
+        <div class="pos">Risk 高 × Cost 低</div>
+        <div class="v">即 Go complex</div>
+        <div class="d">最初から非同期化や分散化で投資する。<br>例: 決済バッチ、SLA直結処理</div>
+      </div>
+      <div class="cell careful">
+        <div class="pos">Risk 高 × Cost 高</div>
+        <div class="v">慎重に Go complex</div>
+        <div class="d">複雑性は必要。ただし設計レビュー必須。<br>段階的に進める。</div>
+      </div>
+      <div class="cell go-simple">
+        <div class="pos">Risk 低 × Cost 低</div>
+        <div class="v">迷わず Stay simple</div>
+        <div class="d">シンプルでGO。後から非同期化に拡張する余地を残す。</div>
+      </div>
+      <div class="cell yagni">
+        <div class="pos">Risk 低 × Cost 高</div>
+        <div class="v">YAGNI、削ろう</div>
+        <div class="d">複雑性に見合うリスク回避がない。<br>"念のため"を疑う。</div>
+      </div>
+      <div class="x-axis">→ Complexity Cost</div>
+    </div>
+
+    <div class="case-apply">
+      <div class="ca-head">— 今回のケースに当てはめてみる</div>
+      <div class="ca-title">キャンペーン一括付与 (数千人)</div>
+
+      <div class="scores">
+        <div class="s c">
+          <div class="l">COST</div>
+          <div class="n">75<span style="font-size:16px;color:#888;">/100</span></div>
+        </div>
+        <div class="s r">
+          <div class="l">RISK</div>
+          <div class="n">15<span style="font-size:16px;color:#888;">/100</span></div>
+        </div>
+      </div>
+
+      <div class="conclu">
+        Risk 低 × Cost 高 → <b>YAGNI、削ろう</b><br>
+        <span style="font-weight:500;font-size:14px;color:#444;">ActiveJob 導入の Cost に見合うほどの Risk が、今のところ見えない。</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="tag">— 自分なりの線引き</div>
+  <h2>どこまでいったら<br><span class="red">「やろう」</span>って判断する？</h2>
+
+  <div class="bl-intro">
+    「複雑性予算を払う / 払わない」って、感覚で決めると不安なので、<b>シグナルが揃ったかどうか</b>で考えてみようと思いました。<br>
+    （あくまで自分の整理なので、皆さんの基準を教えてほしいです）
+  </div>
+
+  <div class="stages">
+    <div class="stage green">
+      <div class="head">— GREEN</div>
+      <div class="v">Stay simple.</div>
+      <div class="v-jp">シンプルなまま行く</div>
+      <div class="sig-l">全部 YES なら同期 / バッチで OK そう</div>
+      <ul>
+        <li>処理時間が許容範囲（数秒〜数十秒）</li>
+        <li>失敗時の再実行が手動でも回せる規模</li>
+        <li>強整合性が業務要件にない</li>
+        <li>呼び出し元は 1 箇所だけ</li>
+        <li>10 倍の規模でもまだ耐えられる</li>
+      </ul>
+      <div class="verdict">→ <b>バッチループ</b>で素直に。<br>複雑性予算は <b>払わない</b>。</div>
+    </div>
+
+    <div class="stage amber">
+      <div class="head">— AMBER</div>
+      <div class="v">Consider it.</div>
+      <div class="v-jp">そろそろ検討してもいいかも</div>
+      <div class="sig-l">2 つ以上 YES なら非同期化を相談</div>
+      <ul>
+        <li>UI ブロック時間が体感で重い（10 秒超）</li>
+        <li>呼び出し元が複数に増えてきた</li>
+        <li>失敗の再実行を運用が面倒だと言い始めた</li>
+        <li>外部 API 依存でタイムアウトが頻発</li>
+        <li>1 年で 5〜10 倍に伸びる予測がある</li>
+      </ul>
+      <div class="verdict">→ まずは <b>軽量な非同期化</b>から。<br>戻せる範囲で予算を試し打ち。</div>
+    </div>
+
+    <div class="stage red">
+      <div class="head">— RED</div>
+      <div class="v">Go complex.</div>
+      <div class="v-jp">払う価値がありそう</div>
+      <div class="sig-l">どれか YES なら本気で投資する場面かも</div>
+      <ul>
+        <li>同期では絶対に間に合わない処理時間</li>
+        <li>失敗の影響が金銭 / SLA に直結する</li>
+        <li>複数チームから呼ばれる共通基盤になっている</li>
+        <li>リアルタイム性が業務要件として強い</li>
+        <li>運用で回す限界を超えた事故が出た</li>
+      </ul>
+      <div class="verdict">→ <b>Job queue / event driven</b> を正式に導入。<br>観測・冪等・運用ぜんぶ予算化。</div>
+    </div>
+  </div>
+
+  <div class="rule">
+    自分ルール: 迷ったら、まず<b>戻せる方</b>から試す。シンプル → 非同期化は足し算でいけるけど、非同期 → シンプル化は引き算で済まないことが多そうなので…。
+  </div>
+</section>
+
+<section class="slide conclusion">
+  <div class="tag">— 今のところの自分の結論</div>
+  <div class="main">
+    設計って、<br>
+    「正しい技術を選ぶ」ことより、<br><br>
+    <span class="em">どの複雑性に予算を使うか</span>を<br>
+    決めることなのかも…？<br><br>
+    <span style="font-size:32px;font-weight:700;color:#444;">…という話でした。ご意見ください！</span>
+  </div>
+</section>
+
+<div class="page"><span class="cur" id="cur">1</span> / <span id="total">21</span></div>
+<div class="nav">
+  <button id="prev">← 前</button>
+  <button id="next">次 →</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let idx = 0;
+const total = slides.length;
+document.getElementById('total').textContent = total;
+
+function show(i) {
+  slides[idx].classList.remove('active');
+  idx = (i + total) % total;
+  slides[idx].classList.add('active');
+  document.getElementById('cur').textContent = idx + 1;
+  slides[idx].scrollTop = 0;
+}
+
+document.getElementById('next').addEventListener('click', () => show(idx + 1));
+document.getElementById('prev').addEventListener('click', () => show(idx - 1));
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+    e.preventDefault();
+    show(idx + 1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+    e.preventDefault();
+    show(idx - 1);
+  }
+});
+</script>
+</body>
+</html>

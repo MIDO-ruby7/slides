@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vercel の中身どうなってるの？ Vol.3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #ffffff;
+  --ink: #1a1a1a;
+  --ink-soft: #444;
+  --ink-faint: #888;
+  --accent: #c4341c;
+  --line: #ddd;
+  --green: #2d7a3e;
+  --blue: #2d5fa3;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Noto Sans JP', sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  padding: 60px 80px 80px;
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.slide.active { display: flex; }
+
+.tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 18px;
+  font-weight: 500;
+}
+
+h2 {
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 32px;
+  letter-spacing: -0.01em;
+}
+
+h2 .red { color: var(--accent); }
+h2 .blue { color: var(--blue); }
+
+.cover { justify-content: center; }
+.cover .tag { font-size: 22px; margin-bottom: 32px; }
+.cover h1 {
+  font-size: 96px;
+  font-weight: 900;
+  line-height: 1.05;
+  margin-bottom: 30px;
+  letter-spacing: -0.03em;
+}
+.cover h1 .red { color: var(--accent); }
+.cover .sub {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.cover .sub .hl {
+  background: linear-gradient(transparent 60%, #ffd5cd 60%);
+}
+.cover .vol-badge {
+  display: inline-block;
+  border: 3px solid var(--accent);
+  color: var(--accent);
+  padding: 8px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  margin-top: 28px;
+}
+
+.lead {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+
+.lead b {
+  font-weight: 900;
+  background: linear-gradient(transparent 60%, #ffd5cd 60%);
+}
+
+.note-box {
+  background: #f8f5ec;
+  border-left: 8px solid var(--accent);
+  padding: 24px 28px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.note-box .small {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  display: block;
+  margin-top: 10px;
+}
+
+.chapter-hero { margin-bottom: 26px; }
+
+.chapter-hero .ch-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.chapter-hero h2 {
+  font-size: 64px;
+  font-weight: 900;
+  margin-bottom: 6px;
+  line-height: 1.05;
+}
+
+.chapter-hero .ch-en {
+  font-size: 22px;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.body-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  flex: 1;
+}
+
+.qbox {
+  background: #f8f5ec;
+  border-left: 8px solid var(--accent);
+  padding: 22px 26px;
+  margin-bottom: 20px;
+}
+
+.qbox .ql {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.qbox .qt {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.body-2col p {
+  font-size: 19px;
+  line-height: 1.7;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+
+.body-2col p b {
+  font-weight: 900;
+  background: linear-gradient(transparent 60%, #ffe4d8 60%);
+}
+
+.body-2col ul.bullets {
+  list-style: none;
+  margin-bottom: 14px;
+}
+
+.body-2col ul.bullets li {
+  font-size: 18px;
+  line-height: 1.6;
+  padding: 8px 0 8px 28px;
+  position: relative;
+  font-weight: 500;
+}
+
+.body-2col ul.bullets li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.body-2col ul.bullets li b { font-weight: 900; }
+
+pre.diagram {
+  background: #1a1a1a;
+  color: #e8e3d7;
+  padding: 22px 26px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  line-height: 1.7;
+  font-weight: 500;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+pre.diagram .red { color: #ffb8a8; font-weight: 900; }
+pre.diagram .blue { color: #9bb8e8; font-weight: 900; }
+pre.diagram .green { color: #8acea0; font-weight: 900; }
+pre.diagram .gray { color: #888; }
+pre.diagram .yellow { color: #ffd87a; font-weight: 900; }
+
+.term-card {
+  background: #f4f1ea;
+  padding: 18px 22px;
+  border-left: 4px solid var(--accent);
+}
+
+.term-card .term-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.term-card .term-name {
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.term-card .term-desc {
+  font-size: 16px;
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+/* === 比較表 === */
+.cmp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+
+.cmp-table thead th {
+  background: var(--ink);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-align: left;
+  padding: 12px 14px;
+}
+
+.cmp-table thead th:nth-child(2) { color: #ffb8a8; }
+.cmp-table thead th:nth-child(3) { color: #9bb8e8; }
+
+.cmp-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  vertical-align: top;
+}
+
+.cmp-table td:first-child {
+  font-weight: 700;
+  background: #f4f1ea;
+  width: 28%;
+}
+
+.cmp-table tr:last-child td { border-bottom: none; }
+
+.cmp-table .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+}
+
+.cmp-table .num.red { color: var(--accent); }
+.cmp-table .num.green { color: var(--green); }
+.cmp-table .num.blue { color: var(--blue); }
+
+/* === レイヤー図 === */
+.layers {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.layer {
+  border: 2px solid var(--ink);
+  padding: 14px 20px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.layer.os { background: #ebf5ed; border-color: var(--green); }
+.layer.vm { background: #e8edf5; border-color: var(--blue); }
+.layer.iso { background: #fbeae5; border-color: var(--accent); }
+.layer.app { background: #fff5e0; border-color: #c8902a; }
+
+.layer .name {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.layer .desc {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.layer .size {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.layer.os .size { color: var(--green); }
+.layer.vm .size { color: var(--blue); }
+.layer.iso .size { color: var(--accent); }
+.layer.app .size { color: #c8902a; }
+
+/* === 制約ボックス === */
+.constraints {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.constraint {
+  border: 2px solid var(--ink);
+  padding: 16px 20px;
+}
+
+.constraint .head {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.constraint .body-text {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin-bottom: 6px;
+}
+
+.constraint .why {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* === recap === */
+.recap-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.recap-item {
+  border: 3px solid var(--ink);
+  padding: 22px 24px;
+}
+
+.recap-item .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.recap-item .title {
+  font-size: 24px;
+  font-weight: 900;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.recap-item .desc {
+  font-size: 15px;
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.final-box {
+  background: var(--ink);
+  color: #fff;
+  padding: 24px 28px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.final-box .nv-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: #ffb8a8;
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.final-box b {
+  color: #ffb8a8;
+  font-weight: 900;
+}
+
+.page {
+  position: fixed;
+  bottom: 24px;
+  right: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--ink-faint);
+  font-weight: 500;
+  z-index: 10;
+}
+
+.page .cur { color: var(--ink); font-weight: 700; }
+
+.nav {
+  position: fixed;
+  bottom: 20px;
+  left: 32px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+
+.nav button {
+  background: var(--bg);
+  border: 2px solid var(--ink);
+  padding: 6px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.nav button:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* === リンク集 === */
+.refs-intro {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.65;
+  margin-bottom: 22px;
+  color: var(--ink-soft);
+}
+
+.refs-intro b {
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.refs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+  flex: 1;
+}
+
+.ref-link {
+  display: block;
+  border-left: 4px solid var(--accent);
+  background: #f4f1ea;
+  padding: 14px 18px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+}
+
+.ref-link:hover {
+  background: #ede5d0;
+  transform: translateX(2px);
+  box-shadow: -4px 0 0 var(--accent), 2px 2px 0 rgba(0,0,0,0.05);
+}
+
+.ref-link:visited { color: inherit; }
+
+.ref-link .ref-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.ref-link .ref-title {
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 4px;
+  line-height: 1.35;
+}
+
+.ref-link .ref-url {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--blue);
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.ref-link .ref-desc {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-weight: 500;
+  line-height: 1.45;
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+
+<!-- =============== 1. 表紙 =============== -->
+<section class="slide cover active">
+  <h1>Vercel、<br>中身どうなってるの？<br><span class="red">完結編。</span></h1>
+  <div class="sub">
+    最後は一番深く。<br>
+    <span class="hl">Edge Function、なぜそんなに速いのか？</span>
+  </div>
+  <div class="vol-badge">VOL.3 / 仕組みの最深部へ</div>
+</section>
+
+<!-- =============== 2. ふりかえり =============== -->
+<section class="slide">
+  <h2>Vol.2 で <span class="red">一つだけ</span>、<br>後回しにしたものがあります</h2>
+
+  <div class="lead">
+    Vol.2 では Edge Function の Cold Start が <b>~5ms</b> と話しました。<br>
+    Serverless Function は <b>数百ms〜数秒</b>。なぜそんなに違うのか？
+  </div>
+
+  <div class="note-box">
+    その答えが <b style="background:none;color:#c4341c;">V8 Isolates</b> という仕組み。
+    <span class="small">— Chrome がタブを分離するのに使ってる技術が、Vercel の Edge Function を支えてます。</span>
+  </div>
+
+  <div class="lead" style="color:#444;font-size:20px;">
+    今日はこの「便利の正体」の最後のピースを覗いてみます。OS、コンテナ、VM、Isolate…という<b style="background:none;color:#c4341c;">階層の話</b>になります。
+  </div>
+</section>
+
+<!-- =============== 3. レイヤー全体像 =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">— PROLOGUE</div>
+    <h2>「コードを動かす」の<br><span class="red">分離レベル</span>は色々ある</h2>
+    <div class="ch-en">同じ Linux サーバー上で、どこまで他人と分けるか</div>
+  </div>
+
+  <div class="lead">
+    クラウドで他人のコードと一緒に動かすには「ちゃんと分離」しないと危ない。でも分離は <b>重い</b> ほど安全で、<b>軽い</b> ほど速い。トレードオフです。
+  </div>
+
+  <div class="layers">
+    <div class="layer os">
+      <div>
+        <div class="name">1. 物理サーバー / OS</div>
+        <div class="desc">そのまま動かす。最速だけど分離ゼロ。クラウド時代では論外。</div>
+      </div>
+      <div class="size">起動: 0ms</div>
+    </div>
+    <div class="layer vm">
+      <div>
+        <div class="name">2. 仮想マシン (VM)</div>
+        <div class="desc">OS ごと分ける。完全分離だけどメモリ・起動コスト大。例: 普通の EC2</div>
+      </div>
+      <div class="size">起動: ~1-2秒</div>
+    </div>
+    <div class="layer vm">
+      <div>
+        <div class="name">3. MicroVM (Firecracker)</div>
+        <div class="desc">VM を超軽量化。Linux kernel は薄く、デバイスは最低限。AWS Lambda の中身。</div>
+      </div>
+      <div class="size">起動: ~100-500ms</div>
+    </div>
+    <div class="layer iso">
+      <div>
+        <div class="name">4. V8 Isolate</div>
+        <div class="desc">OS も VM もなし。1 個の V8 プロセスの中で、メモリ空間だけ分ける。Vercel Edge Function。</div>
+      </div>
+      <div class="size">起動: ~5ms以下</div>
+    </div>
+  </div>
+
+  <div class="lead" style="color:#444;font-size:17px;">
+    Vercel は用途によって <b>3 と 4 を使い分けて</b> います。それを今日は深掘りします。
+  </div>
+</section>
+
+<!-- =============== 4. CH.01 Firecracker =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">— CHAPTER 01 / 03</div>
+    <h2>Firecracker</h2>
+    <div class="ch-en">AWS Lambda の中身、Vercel Serverless の中身</div>
+  </div>
+
+  <div class="body-2col">
+    <div>
+      <div class="qbox">
+        <div class="ql">素朴な疑問</div>
+        <div class="qt">「Serverless」って結局、裏では何が動いてるの？</div>
+      </div>
+      <p>Vercel の Serverless Function は <b>AWS Lambda の上で動いている</b>そうです。そして AWS Lambda の中身は <b>Firecracker</b> という超軽量 VM 技術。</p>
+      <p>普通の VM は OS まるごと立ち上げて 1〜2 秒かかるところ、Firecracker は <b>必要最低限のものだけ載せた Linux カーネル</b> を起動するので 100〜500ms に短縮できる、という技術。</p>
+      <p style="color:#444;font-size:17px;">AWS が OSS として公開しているので、誰でも仕組みが見られます。中身は Rust 製。</p>
+    </div>
+    <div>
+<pre class="diagram">
+<span class="gray">普通のVM (EC2など):</span>
+┌─────────────────┐
+│ OS + 全デバイス │   <span class="red">起動 ~数秒</span>
+│ + ネットワーク等│   <span class="red">数百MB</span>
+└─────────────────┘
+
+<span class="gray">Firecracker microVM:</span>
+┌─────────────────┐
+│ <span class="green">薄いLinux</span>        │   <span class="green">起動 ~125ms</span>
+│ <span class="gray">最小デバイス</span>     │   <span class="green">~5MB</span>
+└─────────────────┘
+
+<span class="yellow">トレードオフ:</span>
+  + 完全な OS 互換性
+  + 強い分離 (KVM)
+  − それでも数百ms かかる
+</pre>
+      <div class="term-card" style="margin-top:18px;">
+        <div class="term-label">TERM</div>
+        <div class="term-name">Firecracker</div>
+        <div class="term-desc">AWS 製の軽量 VM。Linux kernel を最小構成で起動。AWS Lambda・Fargate・Vercel Serverless など、サーバーレス基盤の裏で広く使われている。OSS。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 4.5 Functions の中を覗く =============== -->
+<section class="slide">
+  <h2><span class="red">"Functions" の箱</span>の中を、もっと拡大してみる</h2>
+
+  <div class="lead" style="font-size:21px;margin-bottom:14px;">
+    Vol.2 で見たリクエストの内部フロー図、一番右の <b>Vercel Functions</b> の箱には、実は <b>2 種類の Function</b> が並んで入っていました。
+  </div>
+
+  <div style="display:flex;justify-content:center;flex:1;align-items:center;">
+    <svg viewBox="0 0 1180 420" style="width:100%;max-width:1160px;height:auto;font-family:'Noto Sans JP',sans-serif;">
+      <!-- Vol.2 の図を縮小して左に -->
+      <g opacity="0.4">
+        <rect x="20" y="80" width="380" height="200" fill="#fef8f4" stroke="#c4341c" stroke-width="2"/>
+        <text x="35" y="100" font-size="11" font-weight="700" fill="#c4341c" font-family="'JetBrains Mono',monospace">VERCEL EDGE NETWORK (Vol.2)</text>
+        <rect x="40" y="160" width="60" height="60" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="70" y="195" font-size="11" font-weight="700" text-anchor="middle">FW</text>
+        <line x1="100" y1="190" x2="115" y2="190" stroke="#1a1a1a" stroke-width="2"/>
+        <rect x="115" y="160" width="80" height="60" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="155" y="195" font-size="11" font-weight="700" text-anchor="middle">Routing</text>
+        <line x1="195" y1="190" x2="210" y2="190" stroke="#1a1a1a" stroke-width="2"/>
+        <rect x="210" y="160" width="80" height="60" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="250" y="195" font-size="11" font-weight="700" text-anchor="middle">Cache</text>
+        <line x1="290" y1="190" x2="305" y2="190" stroke="#1a1a1a" stroke-width="2"/>
+      </g>
+      <!-- Functions ハイライト -->
+      <rect x="305" y="155" width="85" height="70" fill="#fff5e0" stroke="#c4341c" stroke-width="3"/>
+      <text x="347" y="190" font-size="12" font-weight="900" text-anchor="middle" fill="#c4341c">Functions</text>
+      <text x="347" y="210" font-size="11" font-weight="700" text-anchor="middle" fill="#c4341c">← ココ</text>
+
+      <!-- ズーム矢印 -->
+      <path d="M 395 190 Q 470 190 530 130 L 530 90" fill="none" stroke="#c4341c" stroke-width="3" stroke-dasharray="6,4" marker-end="url(#arrow-zoom)"/>
+      <text x="445" y="155" font-size="14" font-weight="700" fill="#c4341c" font-family="'JetBrains Mono',monospace">ZOOM IN</text>
+
+      <!-- 拡大した Functions の箱 -->
+      <rect x="480" y="60" width="680" height="320" fill="#fff5e0" stroke="#c4341c" stroke-width="3"/>
+      <text x="500" y="85" font-size="14" font-weight="700" fill="#c4341c" font-family="'JetBrains Mono',monospace" letter-spacing="0.05em">VERCEL FUNCTIONS の中身</text>
+
+      <!-- Edge Function 側 -->
+      <g>
+        <rect x="510" y="115" width="290" height="240" fill="#fff" stroke="#c4341c" stroke-width="2"/>
+        <text x="655" y="143" font-size="12" font-weight="500" text-anchor="middle" fill="#c4341c" font-family="'JetBrains Mono',monospace" letter-spacing="0.05em">— EDGE FUNCTION</text>
+        <text x="655" y="175" font-size="22" font-weight="900" text-anchor="middle">V8 Isolate</text>
+
+        <!-- V8 プロセスの図 -->
+        <rect x="535" y="195" width="240" height="140" fill="#fbeae5" stroke="#c4341c" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="655" y="215" font-size="11" font-weight="700" text-anchor="middle" fill="#c4341c">V8 Process (常駐)</text>
+
+        <rect x="550" y="225" width="60" height="40" fill="#fff" stroke="#c4341c" stroke-width="1"/>
+        <text x="580" y="250" font-size="11" font-weight="700" text-anchor="middle">Iso A</text>
+
+        <rect x="615" y="225" width="60" height="40" fill="#fff" stroke="#c4341c" stroke-width="1"/>
+        <text x="645" y="250" font-size="11" font-weight="700" text-anchor="middle">Iso B</text>
+
+        <rect x="680" y="225" width="80" height="40" fill="#fff" stroke="#c4341c" stroke-width="1"/>
+        <text x="720" y="250" font-size="11" font-weight="700" text-anchor="middle">あなたのJS</text>
+
+        <rect x="550" y="275" width="60" height="40" fill="#fff" stroke="#c4341c" stroke-width="1"/>
+        <text x="580" y="300" font-size="11" font-weight="700" text-anchor="middle">Iso D</text>
+
+        <rect x="615" y="275" width="60" height="40" fill="#fff" stroke="#c4341c" stroke-width="1"/>
+        <text x="645" y="300" font-size="11" font-weight="700" text-anchor="middle">Iso E</text>
+
+        <rect x="680" y="275" width="80" height="40" fill="#fff" stroke="#c4341c" stroke-width="1"/>
+        <text x="720" y="300" font-size="11" font-weight="700" text-anchor="middle">Iso F</text>
+
+        <text x="655" y="367" font-size="12" font-weight="700" text-anchor="middle" fill="#2d7a3e">Cold Start ~5ms</text>
+      </g>
+
+      <!-- Serverless Function 側 -->
+      <g>
+        <rect x="820" y="115" width="320" height="240" fill="#fff" stroke="#2d5fa3" stroke-width="2"/>
+        <text x="980" y="143" font-size="12" font-weight="500" text-anchor="middle" fill="#2d5fa3" font-family="'JetBrains Mono',monospace" letter-spacing="0.05em">— SERVERLESS FUNCTION</text>
+        <text x="980" y="175" font-size="22" font-weight="900" text-anchor="middle">Firecracker microVM</text>
+
+        <!-- microVM の図 -->
+        <rect x="845" y="195" width="270" height="140" fill="#e8edf5" stroke="#2d5fa3" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="980" y="215" font-size="11" font-weight="700" text-anchor="middle" fill="#2d5fa3">AWS Lambda の中身</text>
+
+        <rect x="860" y="230" width="240" height="30" fill="#fff" stroke="#2d5fa3" stroke-width="1"/>
+        <text x="980" y="250" font-size="12" font-weight="700" text-anchor="middle">あなたの Node.js コード</text>
+
+        <rect x="860" y="265" width="240" height="25" fill="#fff" stroke="#2d5fa3" stroke-width="1"/>
+        <text x="980" y="282" font-size="11" font-weight="500" text-anchor="middle">npm 依存パッケージ</text>
+
+        <rect x="860" y="295" width="240" height="25" fill="#fff" stroke="#2d5fa3" stroke-width="1"/>
+        <text x="980" y="312" font-size="11" font-weight="500" text-anchor="middle">薄い Linux Kernel</text>
+
+        <text x="980" y="367" font-size="12" font-weight="700" text-anchor="middle" fill="#c4341c">Cold Start ~100-500ms</text>
+      </g>
+
+      <!-- 矢印定義 -->
+      <defs>
+        <marker id="arrow-zoom" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+          <polygon points="0 0, 10 5, 0 10" fill="#c4341c"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="lead" style="font-size:17px;color:#444;margin-top:4px;">
+    今日は、この <b style="background:none;color:#c4341c;">2 つの箱の中身</b> を解剖していきます。なぜ Cold Start が <b style="background:none;color:#c4341c;">100 倍違う</b> のか、見えてくるはず。
+  </div>
+</section>
+
+<!-- =============== 5. CH.02 V8 Isolates =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">— CHAPTER 02 / 03</div>
+    <h2>V8 Isolates</h2>
+    <div class="ch-en">Chrome のタブ分離技術を、サーバー側で使う発想</div>
+  </div>
+
+  <div class="body-2col">
+    <div>
+      <div class="qbox">
+        <div class="ql">素朴な疑問</div>
+        <div class="qt">そもそも V8 って Chrome の中身じゃないの？それをサーバーで使うってどういうこと？</div>
+      </div>
+      <p>V8 は JavaScript エンジン。Chrome や Node.js の心臓部です。<b>1 つの V8 プロセスの中で、複数のメモリ空間を分けて持つ</b>仕組みが <b>Isolate</b>。</p>
+      <p>Chrome では「タブ A の JS が、タブ B の変数を覗けない」ようにするのに使われています。これをサーバーに持ち込んで「ユーザー A の関数が、ユーザー B のメモリを見られない」を実現したのが Edge Function。</p>
+      <p style="color:#444;font-size:17px;">VM ごと立ち上げる必要がない（V8 プロセスは常駐）ので、Cold Start が一気に <b style="background:none;color:#c4341c;">~5ms 以下</b>になる。</p>
+    </div>
+    <div>
+<pre class="diagram">
+<span class="gray">V8 Process (常駐):</span>
+┌──────────────────────────┐
+│ ┌────────┐  ┌────────┐  │
+│ │<span class="red">Isolate A</span>│  │<span class="blue">Isolate B</span>│ │
+│ │あなたの│  │他人の  │  │
+│ │ JS     │  │ JS     │  │
+│ │heap+gc │  │heap+gc │  │
+│ └────────┘  └────────┘  │
+│                          │
+│  ┌────────┐  ┌────────┐  │
+│  │<span class="green">Isolate C</span>│  │<span class="yellow">Isolate D</span>│ │
+│  │別の人  │  │また別  │  │
+│  └────────┘  └────────┘  │
+└──────────────────────────┘
+
+<span class="gray">※ 1プロセスに数千の isolate が同居</span>
+<span class="gray">※ 起動はメモリ確保だけ → 数ms</span>
+</pre>
+      <div class="term-card" style="margin-top:18px;">
+        <div class="term-label">TERM</div>
+        <div class="term-name">V8 Isolate</div>
+        <div class="term-desc">V8 JS エンジンが提供する「分離された実行環境」。それぞれが独自の heap・GC を持ち、メモリは完全に分離。元々は Chrome のタブ分離用。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 6. なぜそんなに速いのか =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">— CHAPTER 02 (続き)</div>
+    <h2>なぜ <span class="red">100 倍</span>速いのか？</h2>
+    <div class="ch-en">起動するものが、そもそも違う</div>
+  </div>
+
+  <div class="lead">
+    Lambda と Edge Function、起動時にやることを並べてみると、差は一目瞭然でした。
+  </div>
+
+  <table class="cmp-table">
+    <thead>
+      <tr>
+        <th>段階</th>
+        <th>AWS Lambda (Firecracker)</th>
+        <th>Edge Function (V8 Isolate)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>VM の確保</td>
+        <td>必要 <span class="num red">~50-200ms</span></td>
+        <td><span class="num green">不要（V8 は常駐済み）</span></td>
+      </tr>
+      <tr>
+        <td>OS ブート</td>
+        <td>Linux kernel 起動</td>
+        <td><span class="num green">不要</span></td>
+      </tr>
+      <tr>
+        <td>ランタイム起動</td>
+        <td>Node.js プロセス起動</td>
+        <td><span class="num green">不要（V8 常駐）</span></td>
+      </tr>
+      <tr>
+        <td>コード読み込み</td>
+        <td>npm依存含めて全部</td>
+        <td>軽量な JS のみ</td>
+      </tr>
+      <tr>
+        <td>Isolate 作成</td>
+        <td>—</td>
+        <td><span class="num green">~数ms（メモリ確保のみ）</span></td>
+      </tr>
+      <tr>
+        <td><b>合計</b></td>
+        <td><b class="num red">~100-500ms+</b></td>
+        <td><b class="num green">~5ms 以下</b></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="lead" style="color:#444;font-size:18px;">
+    <b>「ゼロから何かを立ち上げる」のではなく「既にあるプロセスに居候させてもらう」</b>。これが Isolate の発想。
+  </div>
+</section>
+
+<!-- =============== 7. CH.03 Edge Runtime の制約 =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">— CHAPTER 03 / 03</div>
+    <h2>Edge の <span class="red">制約</span>はどこから来てるか</h2>
+    <div class="ch-en">速さの裏には、必ず代償がある</div>
+  </div>
+
+  <div class="lead">
+    「Edge は速い」と聞くと「全部 Edge でいいじゃん」と思いがちですが、できない事もそれなりに多い。<b>その制約は、すべて Isolate の仕組みから来てます。</b>
+  </div>
+
+  <div class="constraints">
+    <div class="constraint">
+      <div class="head">CONSTRAINT 01</div>
+      <div class="body-text">Node.js API が使えない</div>
+      <div class="why"><b>なぜ?</b> V8 は JS エンジンだけ。Node.js の <code>fs</code>, <code>net</code>, <code>child_process</code> などは存在しない。fetch などの Web 標準 API のみ。</div>
+    </div>
+    <div class="constraint">
+      <div class="head">CONSTRAINT 02</div>
+      <div class="body-text">ネイティブモジュール禁止</div>
+      <div class="why"><b>なぜ?</b> C++ で書かれた npm パッケージは動かない。sharp（画像処理）や bcrypt なども不可。Pure JS のみ。</div>
+    </div>
+    <div class="constraint">
+      <div class="head">CONSTRAINT 03</div>
+      <div class="body-text">実行時間に厳しい上限</div>
+      <div class="why"><b>なぜ?</b> 1 プロセスに数千 isolate が同居しているので、1 個が長く CPU を占有すると他に迷惑。デフォルトで秒〜分単位の上限。</div>
+    </div>
+    <div class="constraint">
+      <div class="head">CONSTRAINT 04</div>
+      <div class="body-text">メモリも厳しい</div>
+      <div class="why"><b>なぜ?</b> 同じ理由。Edge Function は数百 MB 単位。Serverless Function は GB 単位まで使えるので、重い処理はこちら向き。</div>
+    </div>
+  </div>
+
+  <div class="lead" style="color:#444;font-size:17px;margin-top:8px;">
+    <b style="background:none;color:#c4341c;">「軽くて速い」と「重くて何でもできる」</b>。同じ Serverless でも、求められる場面が違うんだなと整理できました。
+  </div>
+</section>
+
+<!-- =============== 8. Vercelの使い分け =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">— SUMMARY</div>
+    <h2>Vercel は <span class="red">2 つを使い分けて</span>いた</h2>
+    <div class="ch-en">「Edge か Serverless か」は技術選択の最前線</div>
+  </div>
+
+  <table class="cmp-table">
+    <thead>
+      <tr>
+        <th>項目</th>
+        <th>Edge Function (V8 Isolate)</th>
+        <th>Serverless Function (Firecracker)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>裏側の技術</td>
+        <td>V8 Isolate</td>
+        <td>AWS Lambda / Firecracker</td>
+      </tr>
+      <tr>
+        <td>Cold Start</td>
+        <td><span class="num green">~5ms 以下</span></td>
+        <td><span class="num red">~100-500ms</span></td>
+      </tr>
+      <tr>
+        <td>使える API</td>
+        <td>Web 標準 (fetch など)</td>
+        <td>Node.js フル</td>
+      </tr>
+      <tr>
+        <td>ネイティブ依存</td>
+        <td>不可</td>
+        <td>可</td>
+      </tr>
+      <tr>
+        <td>実行時間上限</td>
+        <td>短い</td>
+        <td>長い (最大15分)</td>
+      </tr>
+      <tr>
+        <td>地理的配置</td>
+        <td>世界中の PoP</td>
+        <td>選択した1〜数リージョン</td>
+      </tr>
+      <tr>
+        <td>得意な用途</td>
+        <td>認証チェック / リダイレクト / A/Bテスト / 軽量API</td>
+        <td>DBアクセス / 画像処理 / 重い計算 / SSR</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="lead" style="color:#444;font-size:17px;margin-top:6px;">
+    Vercel は「全部 Edge」じゃなく、<b style="background:none;color:#c4341c;">適材適所</b>で振り分けてくれる。これが Vol.1 で言った「適材適所」の正体でした。
+  </div>
+</section>
+
+<!-- =============== 9. 3部作まとめ =============== -->
+<section class="slide">
+  <h2>Vercel の便利さは、<br><span class="red">階層になった抽象化</span>でできていた</h2>
+
+  <div class="recap-list">
+    <div class="recap-item">
+      <div class="num">— VOL.1</div>
+      <div class="title">全体像</div>
+      <div class="desc">Webhook → Build → 配布 → Atomic Deploy → PoP配信。git push の裏では 5 ステップ。</div>
+    </div>
+    <div class="recap-item">
+      <div class="num">— VOL.2</div>
+      <div class="title">仕組みの裏側</div>
+      <div class="desc">Anycast で最寄り拠点へ自動振り分け。ISR で "古いの出しつつ裏で更新"。Cold Start の話。</div>
+    </div>
+    <div class="recap-item">
+      <div class="num">— VOL.3</div>
+      <div class="title">最深部</div>
+      <div class="desc">Firecracker (microVM) と V8 Isolate を使い分け。「速さ」と「何でもできる」のトレードオフ。</div>
+    </div>
+  </div>
+
+  <div class="final-box">
+    <div class="nv-label">— TAKEAWAY</div>
+    Vercel が魔法に見える理由は、<b>古典的なインフラ技術を、これだけ綺麗に隠して組み合わせている</b>から。<br>
+    <span style="font-size:17px;font-weight:500;color:#ccc;">— 「便利の正体」は、たぶん他のサービスでも同じ構造で隠れているはず。</span>
+  </div>
+</section>
+
+<!-- =============== 10. 参考リンク =============== -->
+<section class="slide">
+  <h2>もっと知りたい人向け <span class="red">リンク集</span></h2>
+
+  <div class="refs-intro">
+    今日の話の核は <b>Firecracker と V8 Isolate</b>。どちらも OSS で、設計ドキュメントや論文まで読めます。ガチで知りたい人は AWS の NSDI 論文がおすすめです。
+  </div>
+
+  <div class="refs-grid">
+    <a class="ref-link" href="https://github.com/firecracker-microvm/firecracker" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">GITHUB / OSS ★Firecracker 本体</div>
+      <div class="ref-title">firecracker-microvm/firecracker</div>
+      <div class="ref-url">github.com/firecracker-microvm/firecracker</div>
+      <div class="ref-desc">AWS 製の microVM。Rust 製、Apache 2.0。125ms 起動・5MiB オーバーヘッドの根拠</div>
+    </a>
+
+    <a class="ref-link" href="https://assets.amazon.science/96/c6/302e527240a3b1f86c86c3e8fc3d/firecracker-lightweight-virtualization-for-serverless-applications.pdf" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">AWS PAPER ★ガチ向け</div>
+      <div class="ref-title">Firecracker: Lightweight Virtualization (NSDI'20)</div>
+      <div class="ref-url">assets.amazon.science/.../firecracker-lightweight-virtualization.pdf</div>
+      <div class="ref-desc">設計思想と Lambda 実装の論文。「なぜ既存 VMM じゃなく自作したか」の答え</div>
+    </a>
+
+    <a class="ref-link" href="https://aws.amazon.com/blogs/aws/firecracker-lightweight-virtualization-for-serverless-computing/" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">AWS BLOG</div>
+      <div class="ref-title">Firecracker 発表ブログ</div>
+      <div class="ref-url">aws.amazon.com/blogs/aws/firecracker-lightweight-virtualization</div>
+      <div class="ref-desc">Lambda と Fargate を支える技術として 2018 年に OSS 公開された経緯</div>
+    </a>
+
+    <a class="ref-link" href="https://v8.dev/" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">V8 / CHROMIUM</div>
+      <div class="ref-title">V8 JavaScript Engine</div>
+      <div class="ref-url">v8.dev / chromium.googlesource.com/v8/v8</div>
+      <div class="ref-desc">V8 本体。Isolate API のドキュメントから "なぜ Chrome のタブ分離技術が Edge で使えるか" が読み取れる</div>
+    </a>
+
+    <a class="ref-link" href="https://vercel.com/docs/functions/runtimes/edge" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">VERCEL DOCS</div>
+      <div class="ref-title">Edge Runtime</div>
+      <div class="ref-url">vercel.com/docs/functions/runtimes/edge</div>
+      <div class="ref-desc">Vercel が V8 Isolate を採用した Edge ランタイムの仕様、Node.js API 制限</div>
+    </a>
+
+    <a class="ref-link" href="https://blog.cloudflare.com/cloud-computing-without-containers/" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">CLOUDFLARE BLOG ★Isolate 解説</div>
+      <div class="ref-title">How Workers works (V8 Isolates)</div>
+      <div class="ref-url">blog.cloudflare.com/cloud-computing-without-containers</div>
+      <div class="ref-desc">V8 Isolate ベースのサーバーレスの先駆者 Cloudflare による解説。"なぜ Lambda より速いか" の説明が分かりやすい</div>
+    </a>
+  </div>
+</section>
+
+<!-- =============== 11. 結論 =============== -->
+<section class="slide cover">
+  <h1 style="font-size:64px;">
+    便利を <span class="red">使う側</span> から、<br>
+    便利を <span class="red">理解する側</span> に<br>
+    なれた気がします。
+  </h1>
+  <div class="sub" style="margin-top:30px;">
+    Webhook、Anycast、V8 Isolates、Firecracker…<br>
+    <span class="hl">どれも他のサービスでも顔を出す概念だった</span>。インフラ勉強の起点として、最高のテーマでした。
+  </div>
+  <div class="vol-badge" style="margin-top:30px;">VOL.3 / 完。3週間ありがとうございました</div>
+</section>
+
+<div class="page"><span class="cur" id="cur">1</span> / <span id="total">11</span></div>
+<div class="nav">
+  <button id="prev">← 前</button>
+  <button id="next">次 →</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let idx = 0;
+const total = slides.length;
+document.getElementById('total').textContent = total;
+
+function show(i) {
+  slides[idx].classList.remove('active');
+  idx = (i + total) % total;
+  slides[idx].classList.add('active');
+  document.getElementById('cur').textContent = idx + 1;
+  slides[idx].scrollTop = 0;
+}
+
+document.getElementById('next').addEventListener('click', () => show(idx + 1));
+document.getElementById('prev').addEventListener('click', () => show(idx - 1));
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+    e.preventDefault();
+    show(idx + 1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+    e.preventDefault();
+    show(idx - 1);
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vercel の中身どうなってるの？ Vol.2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #ffffff;
+  --ink: #1a1a1a;
+  --ink-soft: #444;
+  --ink-faint: #888;
+  --accent: #c4341c;
+  --line: #ddd;
+  --green: #2d7a3e;
+  --blue: #2d5fa3;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Noto Sans JP', sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  padding: 60px 80px 80px;
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.slide.active { display: flex; }
+
+.tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 18px;
+  font-weight: 500;
+}
+
+h2 {
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 32px;
+  letter-spacing: -0.01em;
+}
+
+h2 .red { color: var(--accent); }
+h2 .blue { color: var(--blue); }
+
+.cover { justify-content: center; }
+.cover .tag { font-size: 22px; margin-bottom: 32px; }
+.cover h1 {
+  font-size: 96px;
+  font-weight: 900;
+  line-height: 1.05;
+  margin-bottom: 30px;
+  letter-spacing: -0.03em;
+}
+.cover h1 .red { color: var(--accent); }
+.cover .sub {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.cover .sub .hl {
+  background: linear-gradient(transparent 60%, #ffd5cd 60%);
+}
+.cover .vol-badge {
+  display: inline-block;
+  border: 3px solid var(--accent);
+  color: var(--accent);
+  padding: 8px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  margin-top: 28px;
+}
+
+.lead {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+
+.lead b {
+  font-weight: 900;
+  background: linear-gradient(transparent 60%, #ffd5cd 60%);
+}
+
+.note-box {
+  background: #f8f5ec;
+  border-left: 8px solid var(--accent);
+  padding: 24px 28px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.note-box .small {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  display: block;
+  margin-top: 10px;
+}
+
+/* === 章ヘッダー === */
+.chapter-hero {
+  margin-bottom: 26px;
+}
+
+.chapter-hero .ch-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.chapter-hero h2 {
+  font-size: 64px;
+  font-weight: 900;
+  margin-bottom: 6px;
+  line-height: 1.05;
+}
+
+.chapter-hero .ch-en {
+  font-size: 22px;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.body-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  flex: 1;
+}
+
+.qbox {
+  background: #f8f5ec;
+  border-left: 8px solid var(--accent);
+  padding: 22px 26px;
+  margin-bottom: 20px;
+}
+
+.qbox .ql {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.qbox .qt {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.body-2col p {
+  font-size: 19px;
+  line-height: 1.7;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+
+.body-2col p b {
+  font-weight: 900;
+  background: linear-gradient(transparent 60%, #ffe4d8 60%);
+}
+
+.body-2col ul.bullets {
+  list-style: none;
+  margin-bottom: 14px;
+}
+
+.body-2col ul.bullets li {
+  font-size: 18px;
+  line-height: 1.6;
+  padding: 8px 0 8px 28px;
+  position: relative;
+  font-weight: 500;
+}
+
+.body-2col ul.bullets li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.body-2col ul.bullets li b { font-weight: 900; }
+
+pre.diagram {
+  background: #1a1a1a;
+  color: #e8e3d7;
+  padding: 22px 26px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  line-height: 1.7;
+  font-weight: 500;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+pre.diagram .red { color: #ffb8a8; font-weight: 900; }
+pre.diagram .blue { color: #9bb8e8; font-weight: 900; }
+pre.diagram .green { color: #8acea0; font-weight: 900; }
+pre.diagram .gray { color: #888; }
+pre.diagram .yellow { color: #ffd87a; font-weight: 900; }
+
+.term-card {
+  background: #f4f1ea;
+  padding: 18px 22px;
+  border-left: 4px solid var(--accent);
+}
+
+.term-card .term-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.term-card .term-name {
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.term-card .term-desc {
+  font-size: 16px;
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+/* === 対比 === */
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  align-items: stretch;
+  margin-bottom: 20px;
+}
+
+.compare .side {
+  border: 3px solid var(--ink);
+  padding: 22px 26px;
+}
+
+.compare .side.bad { border-color: var(--accent); }
+.compare .side.good { border-color: var(--green); }
+
+.compare .vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 900;
+  color: var(--accent);
+}
+
+.compare .side .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.compare .side.bad .label { color: var(--accent); }
+.compare .side.good .label { color: var(--green); }
+
+.compare .side .name {
+  font-size: 28px;
+  font-weight: 900;
+  margin-bottom: 14px;
+  line-height: 1.15;
+}
+
+.compare .side ul {
+  list-style: none;
+}
+
+.compare .side ul li {
+  font-size: 16px;
+  line-height: 1.6;
+  padding: 6px 0 6px 22px;
+  position: relative;
+  font-weight: 500;
+}
+
+.compare .side ul li::before {
+  position: absolute;
+  left: 0;
+  font-weight: 900;
+}
+
+.compare .side.bad ul li::before { content: '×'; color: var(--accent); }
+.compare .side.good ul li::before { content: '◯'; color: var(--green); }
+
+/* === recap === */
+.recap-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.recap-item {
+  border: 3px solid var(--ink);
+  padding: 22px 24px;
+}
+
+.recap-item .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.recap-item .title {
+  font-size: 24px;
+  font-weight: 900;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.recap-item .desc {
+  font-size: 15px;
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.next-vol {
+  background: var(--ink);
+  color: #fff;
+  padding: 24px 28px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.next-vol .nv-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: #ffb8a8;
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.next-vol b {
+  color: #ffb8a8;
+  font-weight: 900;
+}
+
+.page {
+  position: fixed;
+  bottom: 24px;
+  right: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--ink-faint);
+  font-weight: 500;
+  z-index: 10;
+}
+
+.page .cur { color: var(--ink); font-weight: 700; }
+
+.nav {
+  position: fixed;
+  bottom: 20px;
+  left: 32px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+
+.nav button {
+  background: var(--bg);
+  border: 2px solid var(--ink);
+  padding: 6px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.nav button:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* === リンク集 === */
+.refs-intro {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.65;
+  margin-bottom: 22px;
+  color: var(--ink-soft);
+}
+
+.refs-intro b {
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.refs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+  flex: 1;
+}
+
+.ref-link {
+  display: block;
+  border-left: 4px solid var(--accent);
+  background: #f4f1ea;
+  padding: 14px 18px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+}
+
+.ref-link:hover {
+  background: #ede5d0;
+  transform: translateX(2px);
+  box-shadow: -4px 0 0 var(--accent), 2px 2px 0 rgba(0,0,0,0.05);
+}
+
+.ref-link:visited { color: inherit; }
+
+.ref-link .ref-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.ref-link .ref-title {
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 4px;
+  line-height: 1.35;
+}
+
+.ref-link .ref-url {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--blue);
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.ref-link .ref-desc {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-weight: 500;
+  line-height: 1.45;
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+
+<!-- =============== 1. 表紙 =============== -->
+<section class="slide cover active">
+  <h1>Vercel、<br>中身どうなってるの？<br><span class="red">続編。</span></h1>
+  <div class="sub">
+    今回は「もう少し深く」。<br>
+    <span class="hl">Anycast / Cold Start / ISR</span> って何？
+  </div>
+  <div class="vol-badge">VOL.2 / 少し深掘り</div>
+</section>
+
+<!-- =============== 2. 前回ふりかえり =============== -->
+<section class="slide">
+  <h2>Vol.1 で <span class="red">5 ステップ</span> を辿りました</h2>
+
+  <div class="lead">
+    git push → Webhook → ビルド → 配布 → DNS切替 → 公開、までの流れを追いました。<br>
+    <b>でも、その中で「あとで詳しく」と言って飛ばした言葉が3つありました。</b>
+  </div>
+
+  <div class="recap-list">
+    <div class="recap-item">
+      <div class="num">— CH.01</div>
+      <div class="title">Anycast</div>
+      <div class="desc">同じURLなのに、なんでみんな最寄りの拠点に繋がるの？</div>
+    </div>
+    <div class="recap-item">
+      <div class="num">— CH.02</div>
+      <div class="title">Cold Start</div>
+      <div class="desc">Serverless の「最初だけ遅い」って何？</div>
+    </div>
+    <div class="recap-item">
+      <div class="num">— CH.03</div>
+      <div class="title">ISR</div>
+      <div class="desc">Vercel の "賢いキャッシュ" って、どう動いてる？</div>
+    </div>
+  </div>
+
+  <div class="lead" style="color:#444;font-size:20px;margin-top:8px;">
+    今日はこの 3 つを、自分の理解できた範囲で説明してみます。
+  </div>
+</section>
+
+<!-- =============== 2.5 リクエスト内部フロー図 =============== -->
+<section class="slide">
+  <h2><span class="red">1 リクエスト</span>が中で辿る道筋</h2>
+
+  <div class="lead" style="font-size:21px;margin-bottom:18px;">
+    Vercel に届いた 1 つのリクエストは、こんな順番で内部を通り抜けて、レスポンスになって戻ります。今日話す Anycast / Cold Start / ISR は、<b>この図のどの部分の話か</b> を意識すると分かりやすいです。
+  </div>
+
+  <div style="display:flex;justify-content:center;flex:1;align-items:center;">
+    <svg viewBox="0 0 1200 460" style="width:100%;max-width:1180px;height:auto;font-family:'Noto Sans JP',sans-serif;">
+      <!-- 背景: Vercel Edge Network 枠 -->
+      <rect x="180" y="80" width="900" height="280" fill="#fef8f4" stroke="#c4341c" stroke-width="3"/>
+      <text x="200" y="110" font-size="16" font-weight="700" fill="#c4341c" font-family="'JetBrains Mono',monospace" letter-spacing="0.1em">VERCEL EDGE NETWORK</text>
+
+      <!-- User -->
+      <g>
+        <rect x="20" y="180" width="120" height="80" fill="#fff" stroke="#1a1a1a" stroke-width="3"/>
+        <text x="80" y="215" font-size="18" font-weight="900" text-anchor="middle">User</text>
+        <text x="80" y="240" font-size="13" font-weight="500" text-anchor="middle" fill="#444">Request</text>
+      </g>
+
+      <!-- 矢印 User → Firewall -->
+      <line x1="140" y1="220" x2="195" y2="220" stroke="#1a1a1a" stroke-width="3" marker-end="url(#arrow)"/>
+
+      <!-- Firewall -->
+      <g>
+        <rect x="210" y="170" width="160" height="100" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="290" y="200" font-size="13" font-weight="500" text-anchor="middle" fill="#c4341c" font-family="'JetBrains Mono',monospace" letter-spacing="0.05em">STEP 01</text>
+        <text x="290" y="227" font-size="20" font-weight="900" text-anchor="middle">Firewall</text>
+        <text x="290" y="252" font-size="13" font-weight="500" text-anchor="middle" fill="#444">DDoS / WAF</text>
+      </g>
+
+      <!-- 矢印 Firewall → Routing -->
+      <line x1="370" y1="220" x2="395" y2="220" stroke="#1a1a1a" stroke-width="3" marker-end="url(#arrow)"/>
+
+      <!-- Routing -->
+      <g>
+        <rect x="410" y="170" width="160" height="100" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="490" y="200" font-size="13" font-weight="500" text-anchor="middle" fill="#c4341c" font-family="'JetBrains Mono',monospace" letter-spacing="0.05em">STEP 02</text>
+        <text x="490" y="227" font-size="20" font-weight="900" text-anchor="middle">Routing</text>
+        <text x="490" y="252" font-size="13" font-weight="500" text-anchor="middle" fill="#444">最寄り PoP へ振り分け</text>
+      </g>
+
+      <!-- 矢印 -->
+      <line x1="570" y1="220" x2="595" y2="220" stroke="#1a1a1a" stroke-width="3" marker-end="url(#arrow)"/>
+
+      <!-- Edge Cache -->
+      <g>
+        <rect x="610" y="170" width="160" height="100" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="690" y="200" font-size="13" font-weight="500" text-anchor="middle" fill="#c4341c" font-family="'JetBrains Mono',monospace" letter-spacing="0.05em">STEP 03</text>
+        <text x="690" y="227" font-size="20" font-weight="900" text-anchor="middle">Edge Cache</text>
+        <text x="690" y="252" font-size="13" font-weight="500" text-anchor="middle" fill="#444">HITなら即返却</text>
+      </g>
+
+      <!-- Cache HIT 戻る矢印 (上を通る) -->
+      <path d="M 690 170 Q 690 130 400 130 Q 100 130 80 180" fill="none" stroke="#2d7a3e" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arrow-green)"/>
+      <text x="380" y="120" font-size="13" font-weight="700" fill="#2d7a3e" font-family="'JetBrains Mono',monospace">CACHE HIT → 即レスポンス</text>
+
+      <!-- 矢印 Cache → Functions (MISSの場合) -->
+      <line x1="770" y1="220" x2="795" y2="220" stroke="#1a1a1a" stroke-width="3" marker-end="url(#arrow)"/>
+      <text x="785" y="205" font-size="11" font-weight="700" fill="#c4341c" font-family="'JetBrains Mono',monospace">MISS</text>
+
+      <!-- Functions ボックス (中に App Router / API Routes) -->
+      <g>
+        <rect x="810" y="150" width="250" height="180" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="935" y="180" font-size="13" font-weight="500" text-anchor="middle" fill="#c4341c" font-family="'JetBrains Mono',monospace" letter-spacing="0.05em">STEP 04</text>
+        <text x="935" y="206" font-size="20" font-weight="900" text-anchor="middle">Vercel Functions</text>
+
+        <!-- 中身: App Router -->
+        <rect x="830" y="220" width="100" height="40" fill="#f4f1ea" stroke="#2d5fa3" stroke-width="2"/>
+        <text x="880" y="245" font-size="14" font-weight="700" text-anchor="middle">App Router</text>
+
+        <!-- 中身: API Routes -->
+        <rect x="940" y="220" width="100" height="40" fill="#f4f1ea" stroke="#2d5fa3" stroke-width="2"/>
+        <text x="990" y="245" font-size="14" font-weight="700" text-anchor="middle">API Routes</text>
+
+        <text x="935" y="290" font-size="12" font-weight="500" text-anchor="middle" fill="#444">動的処理 / SSR / DB アクセス</text>
+        <text x="935" y="308" font-size="12" font-weight="500" text-anchor="middle" fill="#444">(Edge or Serverless)</text>
+      </g>
+
+      <!-- Function → DB等 (右へ) -->
+      <line x1="1060" y1="240" x2="1100" y2="240" stroke="#888" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-gray)"/>
+      <text x="1080" y="270" font-size="11" font-weight="500" fill="#888" text-anchor="middle" font-family="'JetBrains Mono',monospace">DB等</text>
+
+      <!-- 戻り矢印 Functions → User (下を通る) -->
+      <path d="M 935 330 Q 935 400 400 400 Q 100 400 80 260" fill="none" stroke="#c4341c" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arrow-red)"/>
+      <text x="380" y="425" font-size="13" font-weight="700" fill="#c4341c" font-family="'JetBrains Mono',monospace">CACHE MISS → 動的処理 → レスポンス</text>
+
+      <!-- 矢印定義 -->
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+          <polygon points="0 0, 10 5, 0 10" fill="#1a1a1a"/>
+        </marker>
+        <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+          <polygon points="0 0, 10 5, 0 10" fill="#2d7a3e"/>
+        </marker>
+        <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+          <polygon points="0 0, 10 5, 0 10" fill="#c4341c"/>
+        </marker>
+        <marker id="arrow-gray" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+          <polygon points="0 0, 10 5, 0 10" fill="#888"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="lead" style="font-size:17px;color:#444;margin-top:6px;">
+    今日話す Anycast = <b style="background:none;color:#c4341c;">Routing</b> の中身、Cold Start = <b style="background:none;color:#c4341c;">Functions</b> 起動時、ISR = <b style="background:none;color:#c4341c;">Edge Cache</b> の戦略。それぞれこの図のどこか、を意識してみてください。
+  </div>
+</section>
+
+<!-- =============== 3. CH.01 Anycast =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">— CHAPTER 01 / 03</div>
+    <h2>Anycast</h2>
+    <div class="ch-en">同じ住所、なのに違う建物に着く</div>
+  </div>
+
+  <div class="body-2col">
+    <div>
+      <div class="qbox">
+        <div class="ql">素朴な疑問</div>
+        <div class="qt">東京の人もNYの人も、同じ mysite.com を打ってるのに、なぜ違う場所に繋がるの？</div>
+      </div>
+      <p>「同じ IP アドレスを <b>世界中の複数の場所</b>で広告する」というネットワークの技。これを <b>Anycast</b> といいます。</p>
+      <p>普通の通信（Unicast）は「1つの IP = 1つの場所」ですが、Anycast は「1つの IP = 複数の場所」。ネットワーク側が <b>最も近い場所</b>を勝手に選んでくれます。</p>
+      <p style="color:#444;font-size:17px;">仕組み的にはインターネットのルーティングプロトコル（BGP）を使っていて、「私はこのIPを持ってます」を世界中のルーターに知らせている、らしいです。</p>
+    </div>
+    <div>
+<pre class="diagram">
+<span class="gray">Unicast (普通):</span>
+[ User ] ──→ <span class="blue">203.0.113.5</span>
+                ↓
+            <span class="green">[ Server 1 つ ]</span>
+
+
+<span class="gray">Anycast (これ):</span>
+                  ┌→ <span class="red">PoP Tokyo</span>
+[ User Tokyo ] ──→ <span class="blue">203.0.113.5</span>
+                  └→ <span class="red">PoP NY</span>
+                     <span class="red">PoP London</span>
+                     <span class="red">PoP Sydney</span>
+       ↑
+<span class="yellow">同じ IP を世界中で広告</span>
+<span class="gray">→ ネットワーク側が最寄りを選ぶ</span>
+</pre>
+      <div class="term-card" style="margin-top:18px;">
+        <div class="term-label">TERM</div>
+        <div class="term-name">Anycast</div>
+        <div class="term-desc">同じIPを複数の場所で広告するルーティング方式。ユーザーは「最も近い拠点」に自動で繋がる。BGP（経路情報を交換するプロトコル）が裏で動いている。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 4. Anycast の利点 =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">— CHAPTER 01 (続き)</div>
+    <h2>Anycast が <span class="red">勝手にやってくれる</span>こと</h2>
+    <div class="ch-en">障害時の自動迂回もここで効く</div>
+  </div>
+
+  <div class="lead">
+    Anycast の嬉しいところは「速さ」だけじゃなくて、<b>障害時の自動回復</b>もあるらしいです。
+  </div>
+
+  <div class="compare">
+    <div class="side bad">
+      <div class="label">— もし Unicast だったら</div>
+      <div class="name">1拠点が落ちると終わり</div>
+      <ul>
+        <li>東京拠点がダウン → 東京のユーザー全滅</li>
+        <li>復旧するまで誰もアクセスできない</li>
+        <li>DNS で切り替える → 反映に時間がかかる</li>
+      </ul>
+    </div>
+    <div class="vs">→</div>
+    <div class="side good">
+      <div class="label">— Anycast なら</div>
+      <div class="name">勝手に次の拠点へ</div>
+      <ul>
+        <li>東京拠点がダウン → ネットワークが検知</li>
+        <li>東京のユーザー → 自動で大阪 or ソウルへ</li>
+        <li>切替は数秒〜分のオーダー (BGP収束時間)</li>
+      </ul>
+    </div>
+  </div>
+
+<pre class="diagram" style="margin-top:14px;">
+<span class="gray">障害発生!</span>
+                  ┌→ <span class="red">PoP Tokyo</span> <span class="yellow">[ダウン]</span>
+[ Tokyo User ] ──→                  <span class="gray">↓ 自動迂回</span>
+                  └→ <span class="green">PoP Osaka</span>  <span class="gray">(代替)</span>
+
+<span class="gray">※ ユーザーは何もしてない、URL も変えてない</span>
+</pre>
+</section>
+
+<!-- =============== 5. CH.02 Cold Start =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">— CHAPTER 02 / 03</div>
+    <h2>Cold Start</h2>
+    <div class="ch-en">Serverless の「最初だけ遅い」問題</div>
+  </div>
+
+  <div class="body-2col">
+    <div>
+      <div class="qbox">
+        <div class="ql">素朴な疑問</div>
+        <div class="qt">「Serverless は速い」って聞くのに、「Cold Start が遅い」とも聞くのは何故…？</div>
+      </div>
+      <p>Serverless は <b>リクエストが来た瞬間に関数を起動する</b> ので、しばらく呼ばれてないと <b>関数が眠った状態</b> になります。</p>
+      <p>その状態で次のリクエストが来ると、まず <b>関数を起こす（コンテナを準備、コードを読み込む、依存関係をロード）</b> 必要があって、これに時間がかかる。これが Cold Start。</p>
+      <p style="color:#444;font-size:17px;">1回起きたあとは <b>暖まった状態 (Warm)</b> でしばらく残るので、2回目以降は速い。だから「最初だけ遅い」現象が起きる、と理解しました。</p>
+    </div>
+    <div>
+<pre class="diagram">
+<span class="gray">[ 初回: Cold Start ]</span>
+Request → <span class="yellow">起動準備</span> → 実行 → レスポンス
+          <span class="red">~数百ms〜数秒</span>
+
+   ・コンテナの作成
+   ・コードのダウンロード
+   ・依存関係のロード
+   ・初期化処理
+
+<span class="gray">[ 2回目以降: Warm Start ]</span>
+Request → 実行 → レスポンス
+          <span class="green">~数ms〜数十ms</span>
+
+   <span class="gray">※ 暖まった関数を再利用</span>
+</pre>
+      <div class="term-card" style="margin-top:18px;">
+        <div class="term-label">TERM</div>
+        <div class="term-name">Cold Start / Warm Start</div>
+        <div class="term-desc">関数を新規起動する時のオーバーヘッドが Cold Start、既に起動済みの関数を再利用するのが Warm Start。Cold Start を減らす工夫が Serverless 設計の腕の見せどころ。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 6. Cold Start への対策 =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">— CHAPTER 02 (続き)</div>
+    <h2>Cold Start を <span class="red">減らす工夫</span></h2>
+    <div class="ch-en">Vercel が Edge Function を推す理由</div>
+  </div>
+
+  <div class="lead">
+    Vercel には <b>Serverless Function</b> と <b>Edge Function</b> という2種類があって、Cold Start の重さがかなり違うらしいです。
+  </div>
+
+  <div class="compare">
+    <div class="side bad">
+      <div class="label">— SERVERLESS FUNCTION</div>
+      <div class="name">Node.js を丸ごと起動</div>
+      <ul>
+        <li>裏で動いてるのは AWS Lambda</li>
+        <li>Node.js の VM を立ち上げる必要がある</li>
+        <li>Cold Start: <b>数百 ms 〜 数秒</b></li>
+        <li>でも普通の Node.js コードが書ける（強み）</li>
+      </ul>
+    </div>
+    <div class="vs">vs</div>
+    <div class="side good">
+      <div class="label">— EDGE FUNCTION</div>
+      <div class="name">V8 だけを起動</div>
+      <ul>
+        <li>裏は V8 Isolates (Cloudflare Workers 系)</li>
+        <li>Node.js は起動しない、JS エンジンだけ</li>
+        <li>Cold Start: <b>~5 ms 以下</b></li>
+        <li>ただし使える API に制限あり</li>
+      </ul>
+    </div>
+  </div>
+
+<pre class="diagram" style="margin-top:14px;">
+<span class="gray">Serverless:</span>           <span class="gray">Edge:</span>
+┌────────────┐         ┌────────────┐
+│ Node.js    │         │ <span class="green">V8 Isolate</span> │
+│ ├ V8       │   <span class="red">vs</span>    │ (軽量サンドボックス)│
+│ ├ npm modules│       └────────────┘
+│ └ Linux env│
+└────────────┘         <span class="yellow">Cold Start ~5ms</span>
+<span class="red">Cold Start 数百ms+</span>
+</pre>
+
+  <div class="lead" style="color:#444;font-size:18px;margin-top:14px;">
+    ※ V8 Isolates の話は <b style="background:none;color:#c4341c;">Vol.3</b> で詳しくやります。「なんでこんなに速いの？」のカラクリ部分。
+  </div>
+</section>
+
+<!-- =============== 7. CH.03 ISR =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">— CHAPTER 03 / 03</div>
+    <h2>ISR</h2>
+    <div class="ch-en">Incremental Static Regeneration</div>
+  </div>
+
+  <div class="body-2col">
+    <div>
+      <div class="qbox">
+        <div class="ql">素朴な疑問</div>
+        <div class="qt">CDN に置いた静的ファイル、更新したいときどうするの？毎回ビルドし直し？</div>
+      </div>
+      <p>そこを解決するのが <b>ISR</b>。普段は CDN のキャッシュを返して速い、でも <b>裏でこっそり最新版を作って差し替える</b> という仕組み。</p>
+      <p>例えるなら「お店で前に作った料理（キャッシュ）を出しながら、裏で新しいのを作っている」みたいな。ユーザーは待たない、でも次回には新しいのが届く。</p>
+      <p style="color:#444;font-size:17px;">これは <b>stale-while-revalidate</b> というキャッシュ戦略を Vercel が実装したもの。HTTPのキャッシュ仕様にもある考え方らしいです。</p>
+    </div>
+    <div>
+<pre class="diagram">
+<span class="gray">[ 1回目のアクセス ]</span>
+User → <span class="red">古いキャッシュ</span> → 表示 <span class="gray">(速い)</span>
+        ↓
+       <span class="yellow">裏で新版を生成中…</span>
+        ↓
+       新版をキャッシュに上書き
+
+<span class="gray">[ 2回目のアクセス ]</span>
+User → <span class="green">新しいキャッシュ</span> → 表示
+
+<span class="gray">※ 誰も待たされない</span>
+<span class="gray">※ でも徐々に最新版に切り替わる</span>
+</pre>
+      <div class="term-card" style="margin-top:18px;">
+        <div class="term-label">TERM</div>
+        <div class="term-name">stale-while-revalidate</div>
+        <div class="term-desc">「古いやつを返しつつ、裏で更新する」キャッシュ戦略。表示速度と鮮度を両立する設計パターン。HTTPヘッダーにも標準的に存在する。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 8. ISR の更新の種類 =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">— CHAPTER 03 (続き)</div>
+    <h2>ISR の <span class="red">2 種類の更新</span></h2>
+    <div class="ch-en">時間で更新 / イベントで更新</div>
+  </div>
+
+  <div class="lead">
+    ISR には更新トリガーが 2 種類あるみたい。状況によって使い分けるみたいです。
+  </div>
+
+  <div class="body-2col">
+    <div>
+      <div style="border:3px solid var(--blue);padding:22px 26px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--blue);letter-spacing:0.1em;font-weight:500;margin-bottom:6px;">— PATTERN A</div>
+        <div style="font-size:28px;font-weight:900;line-height:1.2;margin-bottom:14px;">時間ベース<br>(Time-based)</div>
+        <p style="font-size:17px;line-height:1.65;font-weight:500;margin-bottom:10px;"><b>「60秒に1回は更新して」</b>のように、一定間隔で勝手に再生成する方式。</p>
+        <p style="font-size:15px;line-height:1.6;color:#444;font-weight:500;">ニュースサイト、ブログのトップページなど、<b>大体これくらいの頻度で更新したい</b>ものに使う。Next.js なら <code>revalidate: 60</code> みたいに指定。</p>
+      </div>
+    </div>
+    <div>
+      <div style="border:3px solid var(--accent);padding:22px 26px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--accent);letter-spacing:0.1em;font-weight:500;margin-bottom:6px;">— PATTERN B</div>
+        <div style="font-size:28px;font-weight:900;line-height:1.2;margin-bottom:14px;">オンデマンド<br>(On-demand)</div>
+        <p style="font-size:17px;line-height:1.65;font-weight:500;margin-bottom:10px;"><b>「CMS で記事が公開されたら更新して」</b>のように、特定のイベントが起きたら再生成する方式。</p>
+        <p style="font-size:15px;line-height:1.6;color:#444;font-weight:500;">ヘッドレス CMS との連携で <b>Webhook</b> 経由で叩く。記事公開・商品追加など <b>更新タイミングが予測できないもの</b>に向く。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="lead" style="color:#444;font-size:18px;margin-top:18px;">
+    どちらも <b style="background:none;color:#c4341c;">「ビルドし直さない」</b>のがキモ。1万ページあっても、更新したいページだけピンポイントで作り直せる。
+  </div>
+</section>
+
+<!-- =============== 9. Vol.2 まとめ =============== -->
+<section class="slide">
+  <h2>少し深掘りで、<br><span class="red">3 つの仕組み</span>が見えました</h2>
+
+  <div class="recap-list">
+    <div class="recap-item">
+      <div class="num">— CH.01</div>
+      <div class="title">Anycast</div>
+      <div class="desc">同じ IP を世界中で広告して、ネットワーク側が最寄り拠点を選んでくれる。障害時の自動迂回もここで効いてた。</div>
+    </div>
+    <div class="recap-item">
+      <div class="num">— CH.02</div>
+      <div class="title">Cold Start</div>
+      <div class="desc">Serverless は「眠った関数を起こす」のに時間がかかる。Vercel の Edge Function は V8 Isolates でこれを大幅に短縮。</div>
+    </div>
+    <div class="recap-item">
+      <div class="num">— CH.03</div>
+      <div class="title">ISR</div>
+      <div class="desc">"古いやつ出しつつ裏で更新"の戦略。時間ベースとオンデマンドの2種類でビルドし直さずに更新できる。</div>
+    </div>
+  </div>
+
+  <div class="next-vol">
+    <div class="nv-label">— 次回予告 / VOL.3</div>
+    最後は一番深く掘ります:<br>
+    <b>V8 Isolates って何？ Firecracker との違いは？ Edge Runtime の制約はどこから来てる？</b>
+  </div>
+</section>
+
+<!-- =============== 10. 参考リンク =============== -->
+<section class="slide">
+  <h2>もっと知りたい人向け <span class="red">リンク集</span></h2>
+
+  <div class="refs-intro">
+    今日話した <b>Anycast / Cold Start / ISR</b> について、自分が裏取りに使ったソースです。Cloudflare のドキュメントが Anycast の説明として一番分かりやすかったです。
+  </div>
+
+  <div class="refs-grid">
+    <a class="ref-link" href="https://vercel.com/blog/life-of-a-vercel-request-navigating-the-edge-network" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">VERCEL OFFICIAL BLOG</div>
+      <div class="ref-title">Life of a Vercel request</div>
+      <div class="ref-url">vercel.com/blog/life-of-a-vercel-request-navigating-the-edge-network</div>
+      <div class="ref-desc">Anycast Routing、PoP からエッジリージョンへのルーティング、フェイルオーバーの全体像</div>
+    </a>
+
+    <a class="ref-link" href="https://www.cloudflare.com/learning/cdn/glossary/anycast-network/" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">CLOUDFLARE ★Anycast 解説</div>
+      <div class="ref-title">What is Anycast?</div>
+      <div class="ref-url">cloudflare.com/learning/cdn/glossary/anycast-network</div>
+      <div class="ref-desc">Anycast の仕組みと Unicast との違い。BGP を使った経路広告の話</div>
+    </a>
+
+    <a class="ref-link" href="https://vercel.com/docs/incremental-static-regeneration" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">VERCEL DOCS</div>
+      <div class="ref-title">ISR (Incremental Static Regeneration)</div>
+      <div class="ref-url">vercel.com/docs/incremental-static-regeneration</div>
+      <div class="ref-desc">時間ベース / オンデマンド両方の更新トリガー、stale-while-revalidate の挙動</div>
+    </a>
+
+    <a class="ref-link" href="https://developer.mozilla.org/docs/Web/HTTP/Headers/Cache-Control" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">RFC / MDN</div>
+      <div class="ref-title">stale-while-revalidate (RFC 5861)</div>
+      <div class="ref-url">developer.mozilla.org/docs/Web/HTTP/Headers/Cache-Control</div>
+      <div class="ref-desc">「古いの返しつつ裏で更新」キャッシュ戦略の HTTP 標準仕様</div>
+    </a>
+
+    <a class="ref-link" href="https://aws.amazon.com/blogs/compute/operating-lambda-performance-optimization-part-1-general-guidance/" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">AWS BLOG</div>
+      <div class="ref-title">Cold Start (AWS Lambda)</div>
+      <div class="ref-url">aws.amazon.com/blogs/compute/operating-lambda-performance-optimization</div>
+      <div class="ref-desc">Lambda の Cold Start の中身。Vercel Serverless Function の挙動の根拠</div>
+    </a>
+
+    <a class="ref-link" href="https://vercel.com/docs/functions/runtimes/edge" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">VERCEL DOCS</div>
+      <div class="ref-title">Edge Runtime の仕様</div>
+      <div class="ref-url">vercel.com/docs/functions/runtimes/edge</div>
+      <div class="ref-desc">V8 Isolate ベースのランタイム制約、PoP デプロイ、利用可能 API</div>
+    </a>
+  </div>
+</section>
+
+<!-- =============== 11. 結論 =============== -->
+<section class="slide cover">
+  <h1 style="font-size:72px;">
+    「便利」の裏には<br>
+    <span class="red">古典的なネットワーク技術</span>と<br>
+    <span class="red">賢いキャッシュ戦略</span>が<br>
+    あった。
+  </h1>
+  <div class="sub" style="margin-top:30px;">
+    Anycast も stale-while-revalidate も、<br>
+    <span class="hl">実は Vercel が発明したものじゃない</span>。組み合わせと完成度がすごい。
+  </div>
+  <div class="vol-badge" style="margin-top:30px;">VOL.2 / END.</div>
+</section>
+
+<div class="page"><span class="cur" id="cur">1</span> / <span id="total">11</span></div>
+<div class="nav">
+  <button id="prev">← 前</button>
+  <button id="next">次 →</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let idx = 0;
+const total = slides.length;
+document.getElementById('total').textContent = total;
+
+function show(i) {
+  slides[idx].classList.remove('active');
+  idx = (i + total) % total;
+  slides[idx].classList.add('active');
+  document.getElementById('cur').textContent = idx + 1;
+  slides[idx].scrollTop = 0;
+}
+
+document.getElementById('next').addEventListener('click', () => show(idx + 1));
+document.getElementById('prev').addEventListener('click', () => show(idx - 1));
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+    e.preventDefault();
+    show(idx + 1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+    e.preventDefault();
+    show(idx - 1);
+  }
+});
+</script>
+</body>
+</html>

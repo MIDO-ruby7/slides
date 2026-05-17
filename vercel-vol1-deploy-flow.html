@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vercel の中身どうなってるの？ Vol.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #ffffff;
+  --ink: #1a1a1a;
+  --ink-soft: #444;
+  --ink-faint: #888;
+  --accent: #c4341c;
+  --line: #ddd;
+  --green: #2d7a3e;
+  --blue: #2d5fa3;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Noto Sans JP', sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  padding: 60px 80px 80px;
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.slide.active { display: flex; }
+
+.tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 18px;
+  font-weight: 500;
+}
+
+h2 {
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 32px;
+  letter-spacing: -0.01em;
+}
+
+h2 .red { color: var(--accent); }
+h2 .blue { color: var(--blue); }
+
+/* === 表紙 === */
+.cover { justify-content: center; }
+
+.cover .tag {
+  font-size: 22px;
+  margin-bottom: 32px;
+}
+
+.cover h1 {
+  font-size: 96px;
+  font-weight: 900;
+  line-height: 1.05;
+  margin-bottom: 30px;
+  letter-spacing: -0.03em;
+}
+
+.cover h1 .red { color: var(--accent); }
+
+.cover .sub {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.cover .sub .hl {
+  background: linear-gradient(transparent 60%, #ffd5cd 60%);
+}
+
+.cover .vol-badge {
+  display: inline-block;
+  border: 3px solid var(--accent);
+  color: var(--accent);
+  padding: 8px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  margin-top: 28px;
+}
+
+/* === 共通 === */
+.lead {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+
+.lead b {
+  font-weight: 900;
+  background: linear-gradient(transparent 60%, #ffd5cd 60%);
+}
+
+.note-box {
+  background: #f8f5ec;
+  border-left: 8px solid var(--accent);
+  padding: 24px 28px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.note-box .small {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  display: block;
+  margin-top: 10px;
+}
+
+/* === 比喩スライド === */
+.metaphor {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  flex: 1;
+}
+
+.meta-col {
+  border: 3px solid var(--ink);
+  padding: 26px 28px;
+}
+
+.meta-col.real { border-color: var(--blue); }
+.meta-col.tech { border-color: var(--accent); }
+
+.meta-col .head {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.meta-col.real .head { color: var(--blue); }
+.meta-col.tech .head { color: var(--accent); }
+
+.meta-col .title {
+  font-size: 32px;
+  font-weight: 900;
+  margin-bottom: 18px;
+  line-height: 1.2;
+}
+
+.meta-col ul {
+  list-style: none;
+}
+
+.meta-col ul li {
+  font-size: 19px;
+  line-height: 1.7;
+  padding: 8px 0 8px 28px;
+  position: relative;
+  font-weight: 500;
+}
+
+.meta-col ul li::before {
+  content: '・';
+  position: absolute;
+  left: 0;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.meta-col.real ul li::before { color: var(--blue); }
+.meta-col.tech ul li::before { color: var(--accent); }
+
+.meta-col ul li b { font-weight: 900; }
+
+/* === 全体フロー図 === */
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.flow-step {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 22px;
+  align-items: stretch;
+}
+
+.flow-num {
+  background: var(--ink);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flow-body {
+  border: 2px solid var(--ink);
+  padding: 16px 22px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+}
+
+.flow-text {
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.flow-text .key {
+  font-weight: 900;
+  font-size: 22px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.flow-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 500;
+  padding: 4px 10px;
+  border: 1.5px solid var(--accent);
+  white-space: nowrap;
+}
+
+/* === 詳細ステップスライド === */
+.step-hero {
+  margin-bottom: 26px;
+}
+
+.step-hero .step-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.step-hero h2 {
+  font-size: 64px;
+  font-weight: 900;
+  margin-bottom: 6px;
+  line-height: 1.05;
+}
+
+.step-hero .step-en {
+  font-size: 22px;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.step-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  flex: 1;
+}
+
+.step-q {
+  background: #f8f5ec;
+  border-left: 8px solid var(--accent);
+  padding: 22px 26px;
+  margin-bottom: 20px;
+}
+
+.step-q .ql {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.step-q .qt {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.step-body p {
+  font-size: 19px;
+  line-height: 1.7;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+
+.step-body p b {
+  font-weight: 900;
+  background: linear-gradient(transparent 60%, #ffe4d8 60%);
+}
+
+.step-list {
+  list-style: none;
+  margin-bottom: 14px;
+}
+
+.step-list li {
+  font-size: 18px;
+  line-height: 1.6;
+  padding: 8px 0 8px 28px;
+  position: relative;
+  font-weight: 500;
+}
+
+.step-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.step-list li b { font-weight: 900; }
+
+/* === ASCIIっぽい図 === */
+pre.diagram {
+  background: #1a1a1a;
+  color: #e8e3d7;
+  padding: 22px 26px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  line-height: 1.7;
+  font-weight: 500;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+pre.diagram .red { color: #ffb8a8; font-weight: 900; }
+pre.diagram .blue { color: #9bb8e8; font-weight: 900; }
+pre.diagram .green { color: #8acea0; font-weight: 900; }
+pre.diagram .gray { color: #888; }
+
+/* === 用語カード === */
+.term-card {
+  background: #f4f1ea;
+  padding: 18px 22px;
+  border-left: 4px solid var(--accent);
+}
+
+.term-card .term-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.term-card .term-name {
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.term-card .term-desc {
+  font-size: 16px;
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+/* === 結論 === */
+.recap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.recap-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.recap-item {
+  border: 3px solid var(--ink);
+  padding: 18px 22px;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.recap-item .n {
+  background: var(--ink);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 900;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recap-item .t {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.recap-item .t b {
+  font-weight: 900;
+  color: var(--accent);
+}
+
+.next-vol {
+  background: var(--ink);
+  color: #fff;
+  padding: 24px 28px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.next-vol .nv-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: #ffb8a8;
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.next-vol b {
+  color: #ffb8a8;
+  font-weight: 900;
+}
+
+/* === ページ === */
+.page {
+  position: fixed;
+  bottom: 24px;
+  right: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--ink-faint);
+  font-weight: 500;
+  z-index: 10;
+}
+
+.page .cur { color: var(--ink); font-weight: 700; }
+
+.nav {
+  position: fixed;
+  bottom: 20px;
+  left: 32px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+
+.nav button {
+  background: var(--bg);
+  border: 2px solid var(--ink);
+  padding: 6px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.nav button:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* === リンク集 === */
+.refs-intro {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.65;
+  margin-bottom: 22px;
+  color: var(--ink-soft);
+}
+
+.refs-intro b {
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.refs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+  flex: 1;
+}
+
+.ref-link {
+  display: block;
+  border-left: 4px solid var(--accent);
+  background: #f4f1ea;
+  padding: 14px 18px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+}
+
+.ref-link:hover {
+  background: #ede5d0;
+  transform: translateX(2px);
+  box-shadow: -4px 0 0 var(--accent), 2px 2px 0 rgba(0,0,0,0.05);
+}
+
+.ref-link:visited { color: inherit; }
+
+.ref-link .ref-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.ref-link .ref-title {
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 4px;
+  line-height: 1.35;
+}
+
+.ref-link .ref-url {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--blue);
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.ref-link .ref-desc {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-weight: 500;
+  line-height: 1.45;
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+
+<!-- =============== 1. 表紙 =============== -->
+<section class="slide cover active">
+  <h1>Vercel、<br>すごい便利だけど<br><span class="red">中身どうなってるの？</span></h1>
+  <div class="sub">
+    git push したら全部やってくれる。<br>
+    <span class="hl">…でもその間、何が起きてるんだろう？</span>
+  </div>
+  <div class="vol-badge">VOL.1 / 全体像をなぞる</div>
+</section>
+
+<!-- =============== 2. つかみ =============== -->
+<section class="slide">
+  <h2>Vercel、<span class="red">本当にすごい</span>んです。</h2>
+
+  <div class="note-box">
+    git push するだけで、世界中の人がアクセスできるWebサイトが、数十秒で立ち上がる。
+    <span class="small">…これ、よく考えたらヤバくないですか？</span>
+  </div>
+
+  <div class="lead">
+    <b>SSL証明書？ DNS？ サーバー？ CDN？</b><br>
+    全部いつの間にか勝手に設定されてる。便利すぎて、逆に「中身で何が起きてるか」を全然知らないままだったので、調べてみました。
+  </div>
+
+  <div class="lead" style="color:#444;font-size:20px;">
+    今日は <b style="background:none;color:#c4341c;">「git push してから世界中で見えるようになるまで」</b> を、一連の流れとして追っていきます。
+  </div>
+</section>
+
+<!-- =============== 3. 比喩 =============== -->
+<section class="slide">
+  <h2>Vercel がやってることは、<br><span class="red">「お店を全国チェーン化」</span>に似てるかも</h2>
+
+  <div class="metaphor">
+    <div class="meta-col real">
+      <div class="head">REAL WORLD</div>
+      <div class="title">お店を全国チェーン化する</div>
+      <ul>
+        <li>本店でレシピを作る <b>(開発)</b></li>
+        <li>レシピを全国の店舗に配る <b>(デプロイ)</b></li>
+        <li>お客さんは <b>最寄りの店舗</b> に行く</li>
+        <li>レシピが更新されたら、各店舗にも反映</li>
+        <li>店舗ごとに材料を仕入れて調理 <b>(動的処理)</b></li>
+      </ul>
+    </div>
+    <div class="meta-col tech">
+      <div class="head">VERCEL</div>
+      <div class="title">Web サイトを全世界配信する</div>
+      <ul>
+        <li>git push で <b>ビルド</b></li>
+        <li>成果物を <b>世界中の CDN に配布</b></li>
+        <li>ユーザーは <b>最寄りの拠点 (PoP)</b> に接続</li>
+        <li>新しいデプロイで <b>各拠点が更新</b></li>
+        <li>動的な処理は <b>Serverless / Edge Functions</b></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 4. 全体フロー =============== -->
+<section class="slide">
+  <h2><span class="red">git push</span> から公開までの 5 ステップ</h2>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-num">01</div>
+      <div class="flow-body">
+        <div class="flow-text">
+          <span class="key">コード push</span>
+          GitHub にコードを push（または Vercel が変更検知）
+        </div>
+        <div class="flow-tag">GitHub / Webhook</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">02</div>
+      <div class="flow-body">
+        <div class="flow-text">
+          <span class="key">ビルド</span>
+          Vercel のビルドコンテナで <code>npm run build</code> 相当が走る
+        </div>
+        <div class="flow-tag">Build Container</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">03</div>
+      <div class="flow-body">
+        <div class="flow-text">
+          <span class="key">成果物の配布</span>
+          静的ファイルは CDN へ、動的な部分は Function として登録
+        </div>
+        <div class="flow-tag">Edge Network / Functions</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">04</div>
+      <div class="flow-body">
+        <div class="flow-text">
+          <span class="key">DNS の切り替え</span>
+          新しいデプロイの URL に DNS が向く（Atomic Deploy）
+        </div>
+        <div class="flow-tag">DNS / Routing</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">05</div>
+      <div class="flow-body">
+        <div class="flow-text">
+          <span class="key">公開</span>
+          世界中の最寄り PoP から配信開始（数十秒で完了）
+        </div>
+        <div class="flow-tag">Anycast / PoP</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 4.5 全体俯瞰図 =============== -->
+<section class="slide">
+  <h2>登場人物を、<span class="red">全部並べてみる</span></h2>
+
+  <div class="lead" style="font-size:21px;margin-bottom:14px;">
+    5 ステップを、誰がどこにいて、どう繋がっているか、絵にしてみました。
+  </div>
+
+  <div style="display:flex;justify-content:center;flex:1;align-items:center;">
+    <svg viewBox="0 0 1180 460" style="width:100%;max-width:1160px;height:auto;font-family:'Noto Sans JP',sans-serif;">
+
+      <!-- Developer (左上) -->
+      <g>
+        <rect x="40" y="40" width="160" height="80" fill="#fff" stroke="#1a1a1a" stroke-width="3"/>
+        <text x="120" y="72" font-size="18" font-weight="900" text-anchor="middle">あなた</text>
+        <text x="120" y="98" font-size="13" font-weight="500" text-anchor="middle" fill="#444">git push</text>
+      </g>
+
+      <!-- 矢印 → GitHub -->
+      <line x1="200" y1="80" x2="245" y2="80" stroke="#1a1a1a" stroke-width="3" marker-end="url(#a1)"/>
+
+      <!-- GitHub -->
+      <g>
+        <rect x="260" y="40" width="160" height="80" fill="#fff" stroke="#2d5fa3" stroke-width="3"/>
+        <text x="340" y="68" font-size="13" font-weight="500" text-anchor="middle" fill="#2d5fa3" font-family="'JetBrains Mono',monospace">STEP 01</text>
+        <text x="340" y="92" font-size="20" font-weight="900" text-anchor="middle">GitHub</text>
+        <text x="340" y="110" font-size="12" font-weight="500" text-anchor="middle" fill="#444">Webhook 発火</text>
+      </g>
+
+      <!-- 矢印 GitHub → Build (下へ) -->
+      <line x1="340" y1="120" x2="340" y2="155" stroke="#1a1a1a" stroke-width="3" marker-end="url(#a1)"/>
+      <text x="358" y="142" font-size="11" font-weight="700" fill="#444" font-family="'JetBrains Mono',monospace">webhook</text>
+
+      <!-- Vercel 全体枠 -->
+      <rect x="40" y="160" width="1100" height="280" fill="#fef8f4" stroke="#c4341c" stroke-width="3"/>
+      <text x="60" y="187" font-size="14" font-weight="700" fill="#c4341c" font-family="'JetBrains Mono',monospace" letter-spacing="0.1em">VERCEL PLATFORM</text>
+
+      <!-- Build Container -->
+      <g>
+        <rect x="260" y="200" width="160" height="100" fill="#fff" stroke="#c4341c" stroke-width="2"/>
+        <text x="340" y="225" font-size="12" font-weight="500" text-anchor="middle" fill="#c4341c" font-family="'JetBrains Mono',monospace">STEP 02</text>
+        <text x="340" y="252" font-size="18" font-weight="900" text-anchor="middle">Build</text>
+        <text x="340" y="270" font-size="18" font-weight="900" text-anchor="middle">Container</text>
+        <text x="340" y="290" font-size="11" font-weight="500" text-anchor="middle" fill="#444">使い捨て / 再現性</text>
+      </g>
+
+      <!-- 矢印 Build → 配布 -->
+      <line x1="420" y1="250" x2="460" y2="250" stroke="#1a1a1a" stroke-width="3" marker-end="url(#a1)"/>
+
+      <!-- 配布先 グループ -->
+      <g>
+        <!-- 静的ファイル → CDN -->
+        <rect x="475" y="200" width="180" height="60" fill="#ebf5ed" stroke="#2d7a3e" stroke-width="2"/>
+        <text x="565" y="222" font-size="11" font-weight="500" text-anchor="middle" fill="#2d7a3e" font-family="'JetBrains Mono',monospace">STEP 03a</text>
+        <text x="565" y="248" font-size="15" font-weight="900" text-anchor="middle">静的 → CDN</text>
+
+        <!-- 動的 → Functions -->
+        <rect x="475" y="270" width="180" height="60" fill="#fff5e0" stroke="#c8902a" stroke-width="2"/>
+        <text x="565" y="292" font-size="11" font-weight="500" text-anchor="middle" fill="#c8902a" font-family="'JetBrains Mono',monospace">STEP 03b</text>
+        <text x="565" y="318" font-size="15" font-weight="900" text-anchor="middle">動的 → Functions</text>
+      </g>
+
+      <!-- 矢印 配布 → DNS切替 -->
+      <line x1="655" y1="265" x2="700" y2="265" stroke="#1a1a1a" stroke-width="3" marker-end="url(#a1)"/>
+
+      <!-- DNS切替 -->
+      <g>
+        <rect x="715" y="230" width="160" height="80" fill="#fff" stroke="#c4341c" stroke-width="2"/>
+        <text x="795" y="252" font-size="12" font-weight="500" text-anchor="middle" fill="#c4341c" font-family="'JetBrains Mono',monospace">STEP 04</text>
+        <text x="795" y="275" font-size="18" font-weight="900" text-anchor="middle">Atomic</text>
+        <text x="795" y="296" font-size="18" font-weight="900" text-anchor="middle">Deploy</text>
+      </g>
+
+      <!-- Edge Network = 世界中の PoP -->
+      <g>
+        <rect x="900" y="200" width="220" height="220" fill="#fff" stroke="#c4341c" stroke-width="2"/>
+        <text x="1010" y="222" font-size="12" font-weight="500" text-anchor="middle" fill="#c4341c" font-family="'JetBrains Mono',monospace">STEP 05</text>
+        <text x="1010" y="248" font-size="18" font-weight="900" text-anchor="middle">Edge Network</text>
+        <text x="1010" y="266" font-size="11" font-weight="500" text-anchor="middle" fill="#444">世界中の PoP</text>
+
+        <!-- PoP の点 -->
+        <circle cx="945" cy="295" r="8" fill="#c4341c"/>
+        <text x="965" y="298" font-size="11" font-weight="700" fill="#1a1a1a">Tokyo</text>
+
+        <circle cx="945" cy="320" r="8" fill="#c4341c"/>
+        <text x="965" y="324" font-size="11" font-weight="700" fill="#1a1a1a">NY</text>
+
+        <circle cx="945" cy="345" r="8" fill="#c4341c"/>
+        <text x="965" y="349" font-size="11" font-weight="700" fill="#1a1a1a">London</text>
+
+        <circle cx="945" cy="370" r="8" fill="#c4341c"/>
+        <text x="965" y="374" font-size="11" font-weight="700" fill="#1a1a1a">Sydney</text>
+
+        <circle cx="945" cy="395" r="8" fill="#c4341c"/>
+        <text x="965" y="399" font-size="11" font-weight="700" fill="#1a1a1a">+ 120 拠点</text>
+      </g>
+
+      <!-- 矢印 DNS → Edge Network -->
+      <line x1="875" y1="270" x2="900" y2="270" stroke="#1a1a1a" stroke-width="3" marker-end="url(#a1)"/>
+
+      <!-- ユーザー達 (下部) -->
+      <g>
+        <rect x="40" y="280" width="180" height="140" fill="#fff" stroke="#2d5fa3" stroke-width="3"/>
+        <text x="130" y="312" font-size="18" font-weight="900" text-anchor="middle">世界中の</text>
+        <text x="130" y="335" font-size="18" font-weight="900" text-anchor="middle">ユーザー</text>
+        <text x="130" y="365" font-size="12" font-weight="500" text-anchor="middle" fill="#444">最寄りの</text>
+        <text x="130" y="382" font-size="12" font-weight="500" text-anchor="middle" fill="#444">PoP に接続</text>
+        <text x="130" y="405" font-size="11" font-weight="500" text-anchor="middle" fill="#2d5fa3">数十秒で公開完了</text>
+      </g>
+
+      <!-- ユーザー → Edge Network (大きく回る矢印) -->
+      <path d="M 220 350 Q 600 460 1010 420" fill="none" stroke="#2d5fa3" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#a2)"/>
+      <text x="600" y="455" font-size="12" font-weight="700" fill="#2d5fa3" font-family="'JetBrains Mono',monospace" text-anchor="middle">アクセス</text>
+
+      <defs>
+        <marker id="a1" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+          <polygon points="0 0, 10 5, 0 10" fill="#1a1a1a"/>
+        </marker>
+        <marker id="a2" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+          <polygon points="0 0, 10 5, 0 10" fill="#2d5fa3"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="lead" style="font-size:17px;color:#444;margin-top:4px;">
+    あなたが書いたコードが、Vercel の中で <b style="background:none;color:#c4341c;">ビルド → 配布 → 切替 → 世界配信</b>。次のスライドから、それぞれのステップを順番に深掘りします。
+  </div>
+</section>
+
+<!-- =============== 5. STEP 1: push =============== -->
+<section class="slide">
+  <div class="step-hero">
+    <div class="step-num">— STEP 01 / 05</div>
+    <h2>コードを push する</h2>
+    <div class="step-en">GitHub → Vercel への通知</div>
+  </div>
+
+  <div class="step-body">
+    <div>
+      <div class="step-q">
+        <div class="ql">素朴な疑問</div>
+        <div class="qt">push しただけで、なんで Vercel が気づくの？</div>
+      </div>
+      <p><b>GitHub の Webhook</b> という仕組みを使っているらしいです。</p>
+      <p>リポジトリに何か起きたとき（push、PR、merge…）に、GitHub が <b>事前に登録された URL に HTTP リクエストを投げてくれる</b>機能。Vercel は連携時にこの Webhook URL を登録しているので、push の瞬間に通知が飛ぶ仕組み。</p>
+      <p style="color:#444;font-size:17px;">…つまり、Vercel が GitHub を監視してるのではなく、GitHub が Vercel に「変更あったよ！」って教えてあげてる側でした。</p>
+    </div>
+    <div>
+<pre class="diagram">
+<span class="gray"># 私たちが触るのはここまで</span>
+$ git push origin main
+                ↓
+       <span class="blue">[ GitHub ]</span>
+                ↓ <span class="gray">webhook (HTTP POST)</span>
+       <span class="red">[ Vercel ]</span>
+                ↓
+        ビルドキューに登録
+                ↓
+       <span class="green">ビルド開始</span>
+</pre>
+      <div class="term-card" style="margin-top:18px;">
+        <div class="term-label">TERM</div>
+        <div class="term-name">Webhook</div>
+        <div class="term-desc">「何か起きたら教えて」を事前に登録しておく仕組み。push, PR merge, issue 作成など、イベント駆動で外部サービスに通知できる。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 6. STEP 2: build =============== -->
+<section class="slide">
+  <div class="step-hero">
+    <div class="step-num">— STEP 02 / 05</div>
+    <h2>ビルドが走る</h2>
+    <div class="step-en">使い捨てのコンテナで成果物を作る</div>
+  </div>
+
+  <div class="step-body">
+    <div>
+      <div class="step-q">
+        <div class="ql">素朴な疑問</div>
+        <div class="qt">どこで npm run build してるの？自分の PC じゃないよね？</div>
+      </div>
+      <p>Vercel が <b>使い捨てのビルドコンテナ</b> を一個立ち上げて、その中でビルドします。</p>
+      <p>イメージとしては「クリーンな Linux サーバーが毎回新しく用意されて、git clone してビルドして、終わったら消える」感じ。だから誰がビルドしても結果が同じになる（再現性）。</p>
+      <p style="color:#444;font-size:17px;">ローカルだと「私の環境では動く」になりがちだけど、毎回ゼロから作るのでその罠が起きにくい設計らしいです。</p>
+    </div>
+    <div>
+<pre class="diagram">
+       <span class="red">[ ビルドコンテナ ]</span>
+       ┌─────────────────────┐
+       │ 1. git clone        │
+       │ 2. npm install      │
+       │ 3. npm run build    │
+       │ 4. 成果物を取り出す │
+       │ 5. <span class="gray">コンテナ破棄</span>     │
+       └─────────────────────┘
+                ↓
+       成果物 (静的ファイル + Function)
+</pre>
+      <div class="term-card" style="margin-top:18px;">
+        <div class="term-label">TERM</div>
+        <div class="term-name">使い捨てコンテナ (Ephemeral)</div>
+        <div class="term-desc">毎回ゼロから作って、終わったら捨てる方式。前回の汚れが残らない＝再現性が高い。CI/CD でよく使われる考え方。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 7. STEP 3: 配布 =============== -->
+<section class="slide">
+  <div class="step-hero">
+    <div class="step-num">— STEP 03 / 05</div>
+    <h2>成果物を世界中に配る</h2>
+    <div class="step-en">静的ファイルは CDN へ、動的処理は Function へ</div>
+  </div>
+
+  <div class="step-body">
+    <div>
+      <div class="step-q">
+        <div class="ql">素朴な疑問</div>
+        <div class="qt">「ビルド済みのファイル」って、どこに置かれるの？</div>
+      </div>
+      <p>ファイルの種類によって <b>置き場所が違う</b> んです。</p>
+      <ul class="step-list">
+        <li><b>静的ファイル</b>（HTML, CSS, 画像）→ 世界中の<b>CDN (PoP)</b> に複製</li>
+        <li><b>サーバーサイド処理</b>（API, SSR）→ <b>Serverless Function</b> として登録</li>
+        <li><b>軽い処理</b>（認証チェック, リダイレクト）→ <b>Edge Function</b> として登録</li>
+      </ul>
+      <p style="color:#444;font-size:17px;">「全部 CDN に置けば速い」じゃなくて、<b style="background:none;color:#c4341c;">適材適所</b>で配り分けてるんだなと。</p>
+    </div>
+    <div>
+<pre class="diagram">
+       ビルド成果物
+            │
+   ┌────────┼────────┐
+   ↓        ↓        ↓
+<span class="green">[ 静的 ]</span> <span class="red">[ API ]</span>  <span class="blue">[ Middleware ]</span>
+HTML    Serverless Edge
+CSS     Function   Function
+画像    ↓          ↓
+↓       米国DC等    世界中のPoP
+世界中
+のCDN
+
+<span class="gray">※ 種類によって配り先が違う</span>
+</pre>
+      <div class="term-card" style="margin-top:18px;">
+        <div class="term-label">TERM</div>
+        <div class="term-name">CDN (Content Delivery Network)</div>
+        <div class="term-desc">世界中に置かれたサーバー網。ユーザーの最寄りから配信することで「物理的な距離」を縮めて、表示を速くする仕組み。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 8. STEP 4: DNS =============== -->
+<section class="slide">
+  <div class="step-hero">
+    <div class="step-num">— STEP 04 / 05</div>
+    <h2>DNS が新しい場所を指す</h2>
+    <div class="step-en">Atomic Deploy = 一瞬で切り替わる</div>
+  </div>
+
+  <div class="step-body">
+    <div>
+      <div class="step-q">
+        <div class="ql">素朴な疑問</div>
+        <div class="qt">デプロイ中、サイトが止まらないのはなんで？</div>
+      </div>
+      <p>Vercel は新しいデプロイを <b>別の URL で完成させてから、最後に切り替える</b> ようになってます。</p>
+      <p>イメージとしては「新しいお店を裏でこっそり完成させて、看板（DNS）だけ最後にスッと差し替える」感じ。</p>
+      <p style="color:#444;font-size:17px;">なので、デプロイ中もユーザーは <b>古いバージョンを問題なく見られる</b>。<b>切り替えは一瞬</b>。失敗したらすぐ前の URL に戻せる（即ロールバック）のもこの仕組みのおかげ。</p>
+    </div>
+    <div>
+<pre class="diagram">
+<span class="gray">デプロイ中:</span>
+mysite.com  ──→ <span class="green">deploy-v1</span> <span class="gray">(稼働中)</span>
+                  <span class="red">deploy-v2</span> <span class="gray">(裏で準備中)</span>
+
+<span class="gray">準備完了の瞬間:</span>
+mysite.com  ──→ <span class="red">deploy-v2</span> <span class="gray">(切替)</span>
+                  <span class="green">deploy-v1</span> <span class="gray">(残ってる)</span>
+
+<span class="gray">ロールバック時:</span>
+mysite.com  ──→ <span class="green">deploy-v1</span> <span class="gray">(戻すだけ)</span>
+                  <span class="red">deploy-v2</span>
+</pre>
+      <div class="term-card" style="margin-top:18px;">
+        <div class="term-label">TERM</div>
+        <div class="term-name">Atomic Deploy</div>
+        <div class="term-desc">デプロイの完了を「全部できた瞬間」だけ反映する方式。中途半端な状態が見える時間がない。即ロールバック可能。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 9. STEP 5: 公開 =============== -->
+<section class="slide">
+  <div class="step-hero">
+    <div class="step-num">— STEP 05 / 05</div>
+    <h2>世界中で見られる状態に</h2>
+    <div class="step-en">ユーザーは最寄りの拠点 (PoP) に繋がる</div>
+  </div>
+
+  <div class="step-body">
+    <div>
+      <div class="step-q">
+        <div class="ql">素朴な疑問</div>
+        <div class="qt">東京の人もNYの人も、なんで同じ URL で速くアクセスできるの？</div>
+      </div>
+      <p>Vercel は世界中に <b>PoP (Points of Presence)</b> という拠点を持っていて、ユーザーは <b>自動的に最寄りの拠点</b> に繋がります。</p>
+      <p>「同じ URL を打っても、東京の人は東京の拠点に、NY の人は NY の拠点に繋がる」というのが裏側で起きてること。物理的な距離が短い分、表示が速い。</p>
+      <p style="color:#444;font-size:17px;">この「自動で最寄りに振り分ける」仕組みが <b>Anycast</b> というルーティング技術なんですが、これは Vol.2 で詳しくやります。</p>
+    </div>
+    <div>
+<pre class="diagram">
+       <span class="gray">同じ mysite.com にアクセス</span>
+
+  <span class="blue">[Tokyo User]</span>           <span class="green">[NY User]</span>
+        ↓                    ↓
+   <span class="red">PoP Tokyo</span>           <span class="red">PoP New York</span>
+   <span class="gray">(数 ms)</span>             <span class="gray">(数 ms)</span>
+        ↓                    ↓
+    キャッシュHIT          キャッシュHIT
+        ↓                    ↓
+      表示                  表示
+
+<span class="gray">※ どちらも同じURL、自動で最寄りへ</span>
+</pre>
+      <div class="term-card" style="margin-top:18px;">
+        <div class="term-label">TERM</div>
+        <div class="term-name">PoP (Points of Presence)</div>
+        <div class="term-desc">CDN の拠点。Vercel は世界に 126+ 箇所持ってる。ユーザーから物理的に近い場所で配信することで、レイテンシ（待ち時間）を減らす。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 10. おまけ: 動的なものはどうしてる? =============== -->
+<section class="slide">
+  <div class="step-hero">
+    <div class="step-num">— おまけ</div>
+    <h2>「動的なページ」はどうしてるの？</h2>
+    <div class="step-en">CDN だけだと足りないやつの話</div>
+  </div>
+
+  <div class="step-body">
+    <div>
+      <div class="step-q">
+        <div class="ql">素朴な疑問</div>
+        <div class="qt">ログインとか、DBから取ってくるやつは？CDNには置けないよね？</div>
+      </div>
+      <p>そういう「毎回違う結果になるやつ」は、<b>Serverless Function</b> として登録されます。</p>
+      <p>リクエストが来た瞬間に、関数が起動して、処理して、レスポンスを返す。<b>使い終わったら消える</b>。サーバーをずっと起動しっぱなしにしないので、コストが安い…らしいです。</p>
+      <p style="color:#444;font-size:17px;">ただし起動に少し時間がかかる（Cold Start問題）など、トレードオフも色々あるみたい。これも Vol.2 で。</p>
+    </div>
+    <div>
+<pre class="diagram">
+<span class="gray">普通のサーバー:</span>
+[Server]──常時起動──┐
+   <span class="gray">高コスト</span>           ├ Request
+   <span class="gray">即レスポンス</span>       ┘
+
+<span class="gray">Serverless:</span>
+Request → <span class="red">[ 関数を起動 ]</span> → レスポンス
+              ↓
+         <span class="gray">使い終わったら消える</span>
+
+         <span class="green">+ 使った分だけ課金</span>
+         <span class="green">+ 自動でスケールする</span>
+         <span class="red">- Cold Start</span>
+</pre>
+      <div class="term-card" style="margin-top:18px;">
+        <div class="term-label">TERM</div>
+        <div class="term-name">Serverless</div>
+        <div class="term-desc">「サーバーがない」じゃなくて「サーバーを意識しなくていい」という意味。リクエスト時だけ関数が動く方式。AWS Lambda がこの仕組みの代表例。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 11. まとめ =============== -->
+<section class="slide">
+  <h2><span class="red">git push だけ</span>の裏で、<br>これだけのことが起きてた</h2>
+
+  <div class="recap">
+    <div class="recap-list">
+      <div class="recap-item">
+        <div class="n">01</div>
+        <div class="t"><b>Webhook</b> で GitHub が Vercel に通知</div>
+      </div>
+      <div class="recap-item">
+        <div class="n">02</div>
+        <div class="t">使い捨て <b>ビルドコンテナ</b>で成果物を作成</div>
+      </div>
+      <div class="recap-item">
+        <div class="n">03</div>
+        <div class="t">静的・動的を <b>適材適所</b>で配り分け</div>
+      </div>
+      <div class="recap-item">
+        <div class="n">04</div>
+        <div class="t"><b>Atomic Deploy</b> で一瞬で切り替え</div>
+      </div>
+      <div class="recap-item">
+        <div class="n">05</div>
+        <div class="t"><b>世界中の PoP</b> から最寄り配信</div>
+      </div>
+      <div class="recap-item">
+        <div class="n">+α</div>
+        <div class="t">動的処理は <b>Serverless Function</b> で対応</div>
+      </div>
+    </div>
+
+    <div class="next-vol">
+      <div class="nv-label">— 次回予告 / VOL.2</div>
+      もうちょっと深く掘ります:<br>
+      <b>Anycast って何？ Cold Start って何？ ISR ってどう動いてる？</b>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 12. 参考リンク =============== -->
+<section class="slide">
+  <h2>もっと知りたい人向け <span class="red">リンク集</span></h2>
+
+  <div class="refs-intro">
+    今日話した内容は、ほぼ <b>Vercel 公式</b>のブログやドキュメントに書いてあります。本気で覗きたい人は、まず一番上の「Life of a Vercel request」がおすすめです。
+  </div>
+
+  <div class="refs-grid">
+    <a class="ref-link" href="https://vercel.com/blog/life-of-a-vercel-request-navigating-the-edge-network" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">VERCEL OFFICIAL BLOG ★おすすめ</div>
+      <div class="ref-title">Life of a Vercel request</div>
+      <div class="ref-url">vercel.com/blog/life-of-a-vercel-request-navigating-the-edge-network</div>
+      <div class="ref-desc">1リクエストが Edge Network 内で辿る道筋を、PoP → Firewall → Routing の順に Vercel 自身が解説</div>
+    </a>
+
+    <a class="ref-link" href="https://vercel.com/docs/edge-network" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">VERCEL DOCS</div>
+      <div class="ref-title">Edge Network 全体</div>
+      <div class="ref-url">vercel.com/docs/edge-network</div>
+      <div class="ref-desc">CDN、PoP、リージョン構成の公式ドキュメント。今日話した適材適所配信の根拠</div>
+    </a>
+
+    <a class="ref-link" href="https://vercel.com/docs/edge-network/regions" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">VERCEL DOCS</div>
+      <div class="ref-title">Edge Network Regions</div>
+      <div class="ref-url">vercel.com/docs/edge-network/regions</div>
+      <div class="ref-desc">126 PoP + 20 Compute Region の世界配置と、障害時の自動フェイルオーバー仕様</div>
+    </a>
+
+    <a class="ref-link" href="https://vercel.com/docs/functions" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">VERCEL DOCS</div>
+      <div class="ref-title">Vercel Functions</div>
+      <div class="ref-url">vercel.com/docs/functions</div>
+      <div class="ref-desc">Serverless Function と Edge Function の使い分け、ランタイムの違い</div>
+    </a>
+
+    <a class="ref-link" href="https://vercel.com/docs/deployments" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">VERCEL DOCS</div>
+      <div class="ref-title">Deployments &amp; Atomic Deploy</div>
+      <div class="ref-url">vercel.com/docs/deployments</div>
+      <div class="ref-desc">即時ロールバックの仕組み、Git Webhook 連携、ビルドパイプラインの公式説明</div>
+    </a>
+
+    <a class="ref-link" href="https://docs.github.com/en/webhooks" target="_blank" rel="noopener noreferrer">
+      <div class="ref-tag">GITHUB DOCS</div>
+      <div class="ref-title">Webhooks の仕様</div>
+      <div class="ref-url">docs.github.com/webhooks</div>
+      <div class="ref-desc">STEP 1 で説明した Webhook の発火タイミング、ペイロード形式など</div>
+    </a>
+  </div>
+</section>
+
+<!-- =============== 13. 結論 =============== -->
+<section class="slide cover">
+  <h1 style="font-size:72px;">
+    <span class="red">便利</span> の裏に、<br>
+    こんなに <span class="red">面白い仕組み</span> が<br>
+    隠れていました。
+  </h1>
+  <div class="sub" style="margin-top:30px;">
+    Vercel に限らず、「便利だな」と思ったツールほど、<br>
+    <span class="hl">中身を覗いてみるとインフラの勉強になる</span>かもしれません。
+  </div>
+  <div class="vol-badge" style="margin-top:30px;">VOL.1 / END. ご清聴ありがとうございました</div>
+</section>
+
+<div class="page"><span class="cur" id="cur">1</span> / <span id="total">13</span></div>
+<div class="nav">
+  <button id="prev">← 前</button>
+  <button id="next">次 →</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let idx = 0;
+const total = slides.length;
+document.getElementById('total').textContent = total;
+
+function show(i) {
+  slides[idx].classList.remove('active');
+  idx = (i + total) % total;
+  slides[idx].classList.add('active');
+  document.getElementById('cur').textContent = idx + 1;
+  slides[idx].scrollTop = 0;
+}
+
+document.getElementById('next').addEventListener('click', () => show(idx + 1));
+document.getElementById('prev').addEventListener('click', () => show(idx - 1));
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+    e.preventDefault();
+    show(idx + 1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+    e.preventDefault();
+    show(idx - 1);
+  }
+});
+</script>
+</body>
+</html>
