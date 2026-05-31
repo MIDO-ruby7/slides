@@ -40,7 +40,6 @@ html, body {
   flex-direction: column;
   overflow-y: auto;
 }
-
 .slide.active { display: flex; }
 
 .tag {
@@ -53,20 +52,19 @@ html, body {
 }
 
 h2 {
-  font-size: 56px;
+  font-size: 48px;
   font-weight: 900;
   line-height: 1.15;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
   letter-spacing: -0.01em;
 }
-
 h2 .red { color: var(--accent); }
 h2 .blue { color: var(--blue); }
 
 .cover { justify-content: center; }
 .cover .tag { font-size: 22px; margin-bottom: 32px; }
 .cover h1 {
-  font-size: 88px;
+  font-size: 82px;
   font-weight: 900;
   line-height: 1.05;
   margin-bottom: 30px;
@@ -74,7 +72,7 @@ h2 .blue { color: var(--blue); }
 }
 .cover h1 .red { color: var(--accent); }
 .cover .sub {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 700;
   line-height: 1.55;
 }
@@ -99,7 +97,6 @@ h2 .blue { color: var(--blue); }
   line-height: 1.65;
   margin-bottom: 24px;
 }
-
 .lead b {
   font-weight: 900;
   background: linear-gradient(transparent 60%, #ffd5cd 60%);
@@ -114,7 +111,6 @@ h2 .blue { color: var(--blue); }
   line-height: 1.6;
   margin-bottom: 28px;
 }
-
 .note-box .small {
   font-size: 18px;
   font-weight: 500;
@@ -123,26 +119,23 @@ h2 .blue { color: var(--blue); }
   margin-top: 10px;
 }
 
-.chapter-hero { margin-bottom: 26px; }
-
+.chapter-hero { margin-bottom: 20px; }
 .chapter-hero .ch-num {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 22px;
+  font-size: 20px;
   color: var(--accent);
   font-weight: 500;
   letter-spacing: 0.1em;
   margin-bottom: 8px;
 }
-
 .chapter-hero h2 {
-  font-size: 64px;
+  font-size: 52px;
   font-weight: 900;
   margin-bottom: 6px;
-  line-height: 1.05;
+  line-height: 1.1;
 }
-
 .chapter-hero .ch-en {
-  font-size: 22px;
+  font-size: 20px;
   color: var(--ink-faint);
   font-weight: 500;
 }
@@ -150,8 +143,19 @@ h2 .blue { color: var(--blue); }
 .body-2col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  gap: 36px;
   flex: 1;
+  align-items: start;
+}
+.body-2col p {
+  font-size: 20px;
+  line-height: 1.7;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+.body-2col p b {
+  font-weight: 900;
+  background: linear-gradient(transparent 60%, #ffe4d8 60%);
 }
 
 .qbox {
@@ -160,7 +164,6 @@ h2 .blue { color: var(--blue); }
   padding: 22px 26px;
   margin-bottom: 20px;
 }
-
 .qbox .ql {
   font-family: 'JetBrains Mono', monospace;
   font-size: 16px;
@@ -169,211 +172,123 @@ h2 .blue { color: var(--blue); }
   letter-spacing: 0.1em;
   margin-bottom: 8px;
 }
-
 .qbox .qt {
   font-size: 24px;
   font-weight: 700;
   line-height: 1.55;
 }
 
-.body-2col p {
-  font-size: 19px;
-  line-height: 1.7;
-  font-weight: 500;
-  margin-bottom: 14px;
-}
-
-.body-2col p b {
-  font-weight: 900;
-  background: linear-gradient(transparent 60%, #ffe4d8 60%);
-}
-
-.body-2col ul.bullets {
-  list-style: none;
-  margin-bottom: 14px;
-}
-
-.body-2col ul.bullets li {
-  font-size: 18px;
-  line-height: 1.6;
-  padding: 8px 0 8px 28px;
-  position: relative;
-  font-weight: 500;
-}
-
-.body-2col ul.bullets li::before {
-  content: '→';
-  position: absolute;
-  left: 0;
-  color: var(--accent);
-  font-weight: 900;
-}
-
-.body-2col ul.bullets li b { font-weight: 900; }
-
-pre.diagram {
-  background: #1a1a1a;
-  color: #e8e3d7;
-  padding: 22px 26px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 15px;
-  line-height: 1.7;
-  font-weight: 500;
-  white-space: pre;
-  overflow-x: auto;
-}
-
-pre.diagram .red { color: #ffb8a8; font-weight: 900; }
-pre.diagram .blue { color: #9bb8e8; font-weight: 900; }
-pre.diagram .green { color: #8acea0; font-weight: 900; }
-pre.diagram .gray { color: #888; }
-pre.diagram .yellow { color: #ffd87a; font-weight: 900; }
-
-.term-card {
-  background: #f4f1ea;
-  padding: 18px 22px;
-  border-left: 4px solid var(--accent);
-}
-
-.term-card .term-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  color: var(--accent);
-  letter-spacing: 0.15em;
-  font-weight: 500;
-  margin-bottom: 6px;
-}
-
-.term-card .term-name {
-  font-size: 22px;
-  font-weight: 900;
-  margin-bottom: 6px;
-}
-
-.term-card .term-desc {
-  font-size: 16px;
-  line-height: 1.55;
-  font-weight: 500;
-  color: var(--ink-soft);
-}
-
-/* === ライフサイクル図 === */
-.lifecycle {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  flex: 1;
-}
-
-.life-step {
+.recap-list {
   display: grid;
-  grid-template-columns: 90px 1fr;
-  gap: 22px;
-  align-items: stretch;
+  grid-template-columns: 1fr;
+  gap: 12px;
 }
-
-.life-num {
+.recap-item {
+  border: 3px solid var(--ink);
+  padding: 18px 22px;
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 14px;
+  align-items: center;
+}
+.recap-item .n {
   background: var(--ink);
   color: #fff;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 28px;
+  font-size: 18px;
   font-weight: 900;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-.life-body {
-  border: 2px solid var(--ink);
-  padding: 16px 22px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 24px;
-  align-items: center;
+.recap-item .t {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.45;
 }
-
-.life-text {
-  font-size: 19px;
-  font-weight: 500;
-  line-height: 1.5;
-}
-
-.life-text .key {
+.recap-item .t b {
   font-weight: 900;
-  font-size: 22px;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.life-tag {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
   color: var(--accent);
-  font-weight: 500;
-  padding: 4px 10px;
-  border: 1.5px solid var(--accent);
-  white-space: nowrap;
 }
 
-/* === 比較表 === */
-.cmp-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 16px;
+/* Lifecycle flow */
+.life-flow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
 }
-
-.cmp-table thead th {
-  background: var(--ink);
-  color: #fff;
+.life-step-card {
+  border: 3px solid var(--ink);
+  padding: 16px 18px;
+  text-align: center;
+}
+.life-step-card .num {
   font-family: 'JetBrains Mono', monospace;
   font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-align: left;
-  padding: 12px 14px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
 }
-
-.cmp-table thead th:nth-child(2) { color: #ffb8a8; }
-.cmp-table thead th:nth-child(3) { color: #9bb8e8; }
-
-.cmp-table td {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--line);
-  font-size: 16px;
-  font-weight: 500;
+.life-step-card .name {
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+.life-step-card .desc {
+  font-size: 14px;
+  color: var(--ink-soft);
   line-height: 1.5;
-  vertical-align: top;
 }
 
-.cmp-table td:first-child {
-  font-weight: 700;
-  background: #f4f1ea;
-  width: 28%;
-}
-
-.cmp-table tr:last-child td { border-bottom: none; }
-
-.cmp-table .num {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-}
-
-.cmp-table .num.red { color: var(--accent); }
-.cmp-table .num.green { color: var(--green); }
-
-/* === メモリの内訳カード === */
-.mem-cards {
+/* State cards */
+.state-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
   margin-bottom: 14px;
 }
+.state {
+  border: 3px solid var(--ink);
+  padding: 18px 20px;
+}
+.state.s-active { border-color: var(--green); }
+.state.s-frozen { border-color: #c8902a; }
+.state.s-discarded { border-color: var(--blue); }
+.state .state-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.state.s-active .state-name { color: var(--green); }
+.state.s-frozen .state-name { color: #c8902a; }
+.state.s-discarded .state-name { color: var(--blue); }
+.state .state-jp {
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+.state .state-desc {
+  font-size: 15px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
 
+/* Memory cards */
+.mem-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
 .mem-card {
   border: 3px solid var(--ink);
   padding: 18px 20px;
 }
-
 .mem-card .mb {
   font-family: 'JetBrains Mono', monospace;
   font-size: 26px;
@@ -381,80 +296,18 @@ pre.diagram .yellow { color: #ffd87a; font-weight: 900; }
   color: var(--accent);
   margin-bottom: 6px;
 }
-
 .mem-card .name {
   font-size: 18px;
   font-weight: 900;
-  margin-bottom: 6px;
-  line-height: 1.2;
+  margin-bottom: 4px;
 }
-
 .mem-card .desc {
   font-size: 13px;
-  font-weight: 500;
-  line-height: 1.5;
   color: var(--ink-soft);
+  line-height: 1.45;
 }
 
-/* === recap === */
-.recap-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 22px;
-}
-
-.recap-item {
-  border: 3px solid var(--ink);
-  padding: 22px 24px;
-}
-
-.recap-item .num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  color: var(--accent);
-  letter-spacing: 0.15em;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
-.recap-item .title {
-  font-size: 22px;
-  font-weight: 900;
-  margin-bottom: 10px;
-  line-height: 1.2;
-}
-
-.recap-item .desc {
-  font-size: 15px;
-  line-height: 1.55;
-  font-weight: 500;
-  color: var(--ink-soft);
-}
-
-.final-box {
-  background: var(--ink);
-  color: #fff;
-  padding: 24px 28px;
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.55;
-}
-
-.final-box .nv-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  color: #ffb8a8;
-  letter-spacing: 0.15em;
-  margin-bottom: 8px;
-  font-weight: 500;
-}
-
-.final-box b {
-  color: #ffb8a8;
-  font-weight: 900;
-}
-
+/* Navigation */
 .page {
   position: fixed;
   bottom: 24px;
@@ -465,7 +318,6 @@ pre.diagram .yellow { color: #ffd87a; font-weight: 900; }
   font-weight: 500;
   z-index: 10;
 }
-
 .page .cur { color: var(--ink); font-weight: 700; }
 
 .nav {
@@ -476,7 +328,6 @@ pre.diagram .yellow { color: #ffd87a; font-weight: 900; }
   gap: 6px;
   z-index: 10;
 }
-
 .nav button {
   background: var(--bg);
   border: 2px solid var(--ink);
@@ -486,70 +337,10 @@ pre.diagram .yellow { color: #ffd87a; font-weight: 900; }
   cursor: pointer;
   font-weight: 500;
 }
-
 .nav button:hover {
   background: var(--ink);
   color: var(--bg);
 }
-
-/* === タブの状態カード === */
-.state-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.state {
-  border: 3px solid var(--ink);
-  padding: 16px 18px;
-  display: flex;
-  flex-direction: column;
-}
-
-.state.active { border-color: var(--green); }
-.state.frozen { border-color: #c8902a; }
-.state.discarded { border-color: var(--blue); }
-.state.closed { border-color: var(--ink); background: #f4f1ea; }
-
-.state .state-name {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  margin-bottom: 6px;
-}
-
-.state.active .state-name { color: var(--green); }
-.state.frozen .state-name { color: #c8902a; }
-.state.discarded .state-name { color: var(--blue); }
-
-.state .state-jp {
-  font-size: 20px;
-  font-weight: 900;
-  margin-bottom: 8px;
-  line-height: 1.2;
-}
-
-.state .state-desc {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.55;
-  color: var(--ink-soft);
-}
-
-.state .state-mem {
-  margin-top: auto;
-  padding-top: 10px;
-  border-top: 1px dashed var(--line);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.state.active .state-mem { color: var(--green); }
-.state.frozen .state-mem { color: #c8902a; }
-.state.discarded .state-mem { color: var(--blue); }
 </style>
 </head>
 <body>
@@ -570,505 +361,501 @@ pre.diagram .yellow { color: #ffd87a; font-weight: 900; }
 
   <div class="note-box">
     動作が重くなる。「Chrome がメモリ食いすぎ」と怒られる。<br>
-    でも、そもそも <b>「タブを開く」って何が起きてるのか</b>、考えたことなかったなと。
-    <span class="small">— 一番身近なアプリの中身を、ちゃんと覗いたことがなかったので調べてみました。</span>
+    でも、そもそも「タブを開く」って何が起きてるのか。
+    <span class="small">— 一番身近なアプリの中身を覗いてみました。</span>
   </div>
 
   <div class="lead">
-    今日は <b>「タブが生まれてから消えるまで」</b> を、メモリの動きとセットで追っていきます。
-  </div>
-
-  <div class="lead" style="color:#444;font-size:20px;">
-    たぶん最後に、「<b style="background:none;color:#c4341c;">タブを閉じるのが正解じゃない場面</b>」も見えてきます。
+    今日は <b>「タブが生まれてから消えるまで」</b> を追っていきます。
   </div>
 </section>
 
-<!-- =============== 3. 大前提: タブ=プロセス =============== -->
+<!-- =============== 3. Q1: タブって何？ =============== -->
 <section class="slide">
   <div class="chapter-hero">
-    <div class="ch-num">— PROLOGUE</div>
-    <h2>大前提: <span class="red">1 タブ = 1 プロセス</span></h2>
-    <div class="ch-en">Chrome は 2008 年から「マルチプロセス」設計</div>
-  </div>
-
-  <div class="body-2col">
-    <div>
-      <div class="qbox">
-        <div class="ql">素朴な疑問</div>
-        <div class="qt">タブってアプリ全体の中の "1 機能" じゃないの？</div>
-      </div>
-      <p>違いました。Chrome は <b>1 つのタブ = 1 つの独立したプロセス</b> として扱っています。</p>
-      <p>OS から見ると、Chrome は 1 個のアプリじゃなくて、<b>たくさんの小さいプロセスの集合</b>。タブ 30 個なら、30 個以上のプロセスが同時に動いているイメージ。</p>
-      <p style="color:#444;font-size:17px;">これは <b>マルチプロセス・アーキテクチャ</b> という設計で、2008 年の Chrome 初代から採用されているもの。安定性とセキュリティのためにこうなっているらしいです。</p>
-    </div>
-    <div>
-<pre class="diagram">
-<span class="gray">[ 一般的なアプリ ]</span>
-┌────────────────┐
-│ 1 プロセス     │
-│ すべての機能   │
-└────────────────┘
-
-<span class="gray">[ Chrome ]</span>
-┌──────────────────────────┐
-│ <span class="yellow">Browser Process</span> (本体)     │
-│ ┌────────┐ ┌────────┐    │
-│ │<span class="red">Renderer</span>│ │<span class="red">Renderer</span>│… │
-│ │Tab A   │ │Tab B   │    │
-│ └────────┘ └────────┘    │
-│ ┌────────┐ ┌────────┐    │
-│ │<span class="blue">GPU</span>     │ │<span class="green">Network</span> │    │
-│ └────────┘ └────────┘    │
-└──────────────────────────┘
-</pre>
-      <div class="term-card" style="margin-top:18px;">
-        <div class="term-label">TERM</div>
-        <div class="term-name">マルチプロセス・アーキテクチャ</div>
-        <div class="term-desc">機能をプロセス単位で分離する設計。1 つが落ちても他に影響しない（安定性）、互いのメモリを覗けない（セキュリティ）、並列実行できる（性能）の 3 大メリットがある。</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- =============== 4. なぜ分けてるの =============== -->
-<section class="slide">
-  <div class="chapter-hero">
-    <div class="ch-num">— PROLOGUE (続き)</div>
-    <h2>なぜわざわざ <span class="red">分けて</span>るのか？</h2>
-    <div class="ch-en">分離のコストを払ってでも欲しいもの</div>
+    <div class="ch-num">QUESTION 01</div>
+    <h2>タブって、アプリ全体の中の<br><span class="red">1機能</span>じゃないの？</h2>
   </div>
 
   <div class="lead">
-    1 プロセスにまとめた方がメモリは節約できる。でも Chrome は、<b>あえて分けるコストを払って</b>います。理由は 3 つ。
+    実は違います。Chrome では <b>1つのタブ = 1つの独立したプロセス</b>。<br>
+    OS から見ると、Chrome は1個のアプリじゃなくて、<b>たくさんの小さいプロセスの集合</b>です。
+  </div>
+
+  <div class="note-box">
+    タブ 30 個なら、30 個以上のプロセスが同時に動いている。
+    <span class="small">これを「マルチプロセス・アーキテクチャ」と呼びます。2008 年の初代 Chrome から採用。</span>
+  </div>
+</section>
+
+<!-- =============== 4. マルチプロセスの図解 =============== -->
+<section class="slide">
+  <h2><span class="red">1 タブ = 1 プロセス</span> の構造</h2>
+
+  <div class="body-2col" style="align-items:center;">
+    <div>
+      <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Typical app -->
+        <text x="130" y="24" text-anchor="middle" fill="#888" font-size="15" font-weight="700">一般的なアプリ</text>
+        <rect x="30" y="35" width="200" height="80" rx="10" fill="#f8f5ec" stroke="#1a1a1a" stroke-width="2.5"/>
+        <text x="130" y="70" text-anchor="middle" fill="#1a1a1a" font-size="16" font-weight="900">1 プロセス</text>
+        <text x="130" y="95" text-anchor="middle" fill="#888" font-size="14">すべての機能がここに</text>
+
+        <!-- Chrome -->
+        <text x="200" y="155" text-anchor="middle" fill="#c4341c" font-size="15" font-weight="700">Chrome</text>
+        <rect x="20" y="165" width="360" height="125" rx="10" fill="#fff" stroke="#1a1a1a" stroke-width="2.5"/>
+        <text x="200" y="190" text-anchor="middle" fill="#888" font-size="13" font-weight="500">Browser Process（本体）</text>
+
+        <!-- Renderer tabs -->
+        <rect x="40" y="200" width="95" height="55" rx="6" fill="#fdf5f0" stroke="#c4341c" stroke-width="2"/>
+        <text x="87" y="222" text-anchor="middle" fill="#c4341c" font-size="12" font-weight="700">Renderer</text>
+        <text x="87" y="242" text-anchor="middle" fill="#444" font-size="13" font-weight="700">Tab A</text>
+
+        <rect x="152" y="200" width="95" height="55" rx="6" fill="#fdf5f0" stroke="#c4341c" stroke-width="2"/>
+        <text x="199" y="222" text-anchor="middle" fill="#c4341c" font-size="12" font-weight="700">Renderer</text>
+        <text x="199" y="242" text-anchor="middle" fill="#444" font-size="13" font-weight="700">Tab B</text>
+
+        <rect x="264" y="200" width="95" height="55" rx="6" fill="#fdf5f0" stroke="#c4341c" stroke-width="2"/>
+        <text x="311" y="222" text-anchor="middle" fill="#c4341c" font-size="12" font-weight="700">Renderer</text>
+        <text x="311" y="242" text-anchor="middle" fill="#444" font-size="13" font-weight="700">Tab C</text>
+
+        <text x="200" y="280" text-anchor="middle" fill="#444" font-size="14" font-weight="700">+ GPU, Network ... 全部別プロセス</text>
+      </svg>
+    </div>
+    <div>
+      <p>Chrome は機能を<b>プロセス単位で分離</b>しています。</p>
+      <p>タブ、GPU、ネットワーク処理がそれぞれ独立したプロセスで動いている。</p>
+      <div class="note-box" style="margin-top:12px;">
+        1つのタブが落ちても他は無事。<br>悪意あるサイトが他タブのメモリを覗けない。
+        <span class="small">安定性とセキュリティのために、あえてメモリを使う設計。</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 5. なぜ分けてる =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">QUESTION 02</div>
+    <h2>なぜわざわざ<span class="red">分けて</span>いるのか？</h2>
+  </div>
+
+  <div class="lead">
+    1プロセスにまとめた方がメモリは節約できる。<br>
+    でも Chrome は <b>あえて分けるコストを払って</b>います。
   </div>
 
   <div class="recap-list">
     <div class="recap-item">
-      <div class="num">— 理由 01</div>
-      <div class="title">安定性</div>
-      <div class="desc">1 つのタブが落ちても、他のタブ・ブラウザ本体は無事。「Aw Snap!」の画面を見たことあるかと思いますが、あれはそのタブだけが死んでる状態。</div>
+      <div class="n">1</div>
+      <div class="t"><b>安定性</b> — 1つのタブが落ちても、他のタブ・ブラウザ本体は無事</div>
     </div>
     <div class="recap-item">
-      <div class="num">— 理由 02</div>
-      <div class="title">セキュリティ</div>
-      <div class="desc">悪意のあるサイト A が、別タブで開いてる Gmail のメモリを覗けない。プロセスが分かれていれば、OS が物理的にメモリ空間を分離してくれる。</div>
+      <div class="n">2</div>
+      <div class="t"><b>セキュリティ</b> — 悪意あるサイトが、別タブの Gmail のメモリを覗けない</div>
     </div>
     <div class="recap-item">
-      <div class="num">— 理由 03</div>
-      <div class="title">並列性能</div>
-      <div class="desc">CPU の複数コアを活かして、タブごとに並列実行できる。1 つの重いタブが、他のタブの操作をブロックしない。</div>
+      <div class="n">3</div>
+      <div class="t"><b>並列性能</b> — CPU の複数コアを活かして、タブごとに並列実行できる</div>
     </div>
-  </div>
-
-  <div class="lead" style="color:#444;font-size:18px;">
-    そして 2018 年からは <b style="background:none;color:#c4341c;">Site Isolation</b> という仕組みも入って、<b style="background:none;color:#c4341c;">1 タブ内でも</b>サイト単位で更にプロセスを分けるようになりました（後述）。
   </div>
 </section>
 
-<!-- =============== 5. ライフサイクル全体像 =============== -->
+<!-- =============== 6. ライフサイクル全体像 =============== -->
 <section class="slide">
-  <h2>タブの <span class="red">一生</span>を辿る</h2>
+  <h2>タブの<span class="red">一生</span>を辿る</h2>
 
-  <div class="lifecycle">
-    <div class="life-step">
-      <div class="life-num">01</div>
-      <div class="life-body">
-        <div class="life-text">
-          <span class="key">誕生</span>
-          + ボタンを押すと、新しいプロセスが立ち上がる
-        </div>
-        <div class="life-tag">Process Spawn</div>
-      </div>
+  <div class="lead" style="margin-bottom:16px;">
+    タブには <b>5つのステップ</b> があります。
+  </div>
+
+  <div class="life-flow">
+    <div class="life-step-card">
+      <div class="num">01</div>
+      <div class="name">誕生</div>
+      <div class="desc">+ ボタンで<br>プロセス生成</div>
     </div>
-    <div class="life-step">
-      <div class="life-num">02</div>
-      <div class="life-body">
-        <div class="life-text">
-          <span class="key">読み込み</span>
-          URL を解決して、HTML/CSS/JS を取得・解析・描画
-        </div>
-        <div class="life-tag">Network → Render</div>
-      </div>
+    <div class="life-step-card">
+      <div class="num">02</div>
+      <div class="name">読み込み</div>
+      <div class="desc">URL を解決<br>HTML を取得・描画</div>
     </div>
-    <div class="life-step">
-      <div class="life-num">03</div>
-      <div class="life-body">
-        <div class="life-text">
-          <span class="key">アクティブ</span>
-          表示中。フルにメモリと CPU を使う状態
-        </div>
-        <div class="life-tag">Active</div>
-      </div>
+    <div class="life-step-card">
+      <div class="num">03</div>
+      <div class="name">活動中</div>
+      <div class="desc">フルにメモリと<br>CPU を使う</div>
     </div>
-    <div class="life-step">
-      <div class="life-num">04</div>
-      <div class="life-body">
-        <div class="life-text">
-          <span class="key">休眠</span>
-          バックグラウンドへ → 凍結 (Frozen) や破棄 (Discarded)
-        </div>
-        <div class="life-tag">Page Lifecycle</div>
-      </div>
+    <div class="life-step-card">
+      <div class="num">04</div>
+      <div class="name">休眠</div>
+      <div class="desc">凍結(Frozen)や<br>破棄(Discarded)</div>
     </div>
-    <div class="life-step">
-      <div class="life-num">05</div>
-      <div class="life-body">
-        <div class="life-text">
-          <span class="key">死</span>
-          × ボタンでプロセス終了、メモリ解放
-        </div>
-        <div class="life-tag">Process Kill</div>
-      </div>
+    <div class="life-step-card">
+      <div class="num">05</div>
+      <div class="name">死</div>
+      <div class="desc">× ボタンで<br>プロセス終了</div>
     </div>
+  </div>
+
+  <div class="note-box">
+    ここから1つずつ、「その瞬間に何が起きているか」を見ていきます。
   </div>
 </section>
 
-<!-- =============== 6. STEP 1: 誕生 =============== -->
+<!-- =============== 7. STEP 1: 誕生 =============== -->
 <section class="slide">
   <div class="chapter-hero">
-    <div class="ch-num">— STEP 01 / 05</div>
-    <h2>タブの誕生</h2>
-    <div class="ch-en">+ を押した瞬間に、何が起きているか</div>
+    <div class="ch-num">STEP 01</div>
+    <h2>+ を押すと、<span class="red">何が起きる</span>？</h2>
   </div>
 
-  <div class="body-2col">
+  <div class="body-2col" style="align-items:center;">
     <div>
-      <div class="qbox">
-        <div class="ql">素朴な疑問</div>
-        <div class="qt">+ を押すと、一瞬で新しいタブが出てくるけど、裏では？</div>
-      </div>
-      <p>+ ボタンを押すと、Chrome 本体 (Browser Process) が <b>OS に「新しいプロセスを作って」と依頼</b>します。</p>
-      <p>OS は新しいプロセスにメモリ空間を割り当てて、その中で Renderer Process と呼ばれる "タブ用のプロセス" が起動。中には <b>V8（JS エンジン）</b>と <b>Blink（HTML/CSS レンダリングエンジン）</b>が入ってる。</p>
-      <p style="color:#444;font-size:17px;">空のタブでも、起動した瞬間に <b>30〜50 MB</b> くらいメモリを使うらしいです。「中身ゼロ」じゃないんですね。</p>
+      <svg viewBox="0 0 360 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- + button -->
+        <rect x="120" y="10" width="120" height="44" rx="8" fill="#f8f5ec" stroke="#1a1a1a" stroke-width="2.5"/>
+        <text x="180" y="38" text-anchor="middle" fill="#1a1a1a" font-size="22" font-weight="900">+ ボタン</text>
+
+        <line x1="180" y1="54" x2="180" y2="78" stroke="#888" stroke-width="2" stroke-dasharray="4 4"/>
+
+        <!-- Browser Process -->
+        <rect x="40" y="78" width="280" height="42" rx="8" fill="#f8f5ec" stroke="#c4341c" stroke-width="2"/>
+        <text x="180" y="105" text-anchor="middle" fill="#c4341c" font-size="14" font-weight="700">Chrome 本体が OS に依頼</text>
+
+        <line x1="180" y1="120" x2="180" y2="144" stroke="#888" stroke-width="2" stroke-dasharray="4 4"/>
+
+        <!-- OS -->
+        <rect x="40" y="144" width="280" height="42" rx="8" fill="#edf7f0" stroke="#2d7a3e" stroke-width="2"/>
+        <text x="180" y="170" text-anchor="middle" fill="#2d7a3e" font-size="14" font-weight="700">OS がメモリ空間を確保</text>
+
+        <line x1="180" y1="186" x2="180" y2="210" stroke="#888" stroke-width="2" stroke-dasharray="4 4"/>
+
+        <!-- Renderer Process -->
+        <rect x="30" y="210" width="300" height="58" rx="10" fill="#fdf5f0" stroke="#c4341c" stroke-width="2.5"/>
+        <text x="180" y="235" text-anchor="middle" fill="#c4341c" font-size="15" font-weight="900">タブ用のプロセスが起動</text>
+        <text x="180" y="256" text-anchor="middle" fill="#444" font-size="13">V8 (JS) + Blink (描画) + DOM</text>
+      </svg>
     </div>
     <div>
-<pre class="diagram">
-[ + ボタン押下 ]
-       ↓
-<span class="yellow">Browser Process</span> が OS にお願い
-       ↓
-<span class="gray">OS: 新しいメモリ空間を確保</span>
-       ↓
-新しい <span class="red">Renderer Process</span> 起動
-       ┌──────────────┐
-       │ ┌──────────┐ │
-       │ │ V8       │ │ <span class="gray">JS エンジン</span>
-       │ ├──────────┤ │
-       │ │ Blink    │ │ <span class="gray">レンダリング</span>
-       │ ├──────────┤ │
-       │ │ DOM tree │ │ <span class="gray">空っぽ</span>
-       │ └──────────┘ │
-       └──────────────┘
-        <span class="red">~30-50 MB</span>
-</pre>
-      <div class="term-card" style="margin-top:18px;">
-        <div class="term-label">TERM</div>
-        <div class="term-name">Renderer Process</div>
-        <div class="term-desc">タブごとに 1 つ作られる、Web ページを描画するためのプロセス。V8 (JS) + Blink (HTML/CSS) + DOM が入っている。「タブの中身」の正体。</div>
+      <p>Browser Process が <b>OS に「新しいプロセスを作って」と依頼</b>します。</p>
+      <p>そのプロセスの中に V8（JS エンジン）と Blink（描画エンジン）が入っている。<br>これが<b>タブの正体</b>。</p>
+      <div class="note-box" style="margin-top:12px;">
+        空のタブでも <b>30〜50 MB</b> 使う。
+        <span class="small">中身がゼロでも、エンジンの起動コストがかかる。</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- =============== 7. STEP 2: 読み込み =============== -->
+<!-- =============== 8. STEP 2: 読み込み =============== -->
 <section class="slide">
   <div class="chapter-hero">
-    <div class="ch-num">— STEP 02 / 05</div>
-    <h2>ページを読み込む</h2>
-    <div class="ch-en">URL → DNS → HTML → 描画</div>
+    <div class="ch-num">STEP 02</div>
+    <h2>URL を打つと、<span class="red">何が起きる</span>？</h2>
   </div>
 
-  <div class="body-2col">
+  <div class="body-2col" style="align-items:center;">
     <div>
-      <div class="qbox">
-        <div class="ql">素朴な疑問</div>
-        <div class="qt">URL を打つだけなのに、なぜ複数の "ぼぼぼ" って読み込まれてるの？</div>
-      </div>
-      <p>URL からページが表示されるまで、おおまかに 4 ステップ。</p>
-      <ul class="bullets">
-        <li><b>DNS 解決</b> — example.com → IP アドレスに変換</li>
-        <li><b>HTML 取得</b> — そのサーバーから HTML をダウンロード</li>
-        <li><b>追加リソース取得</b> — HTML を読みながら CSS/JS/画像も取得</li>
-        <li><b>描画</b> — DOM ツリー組み立て → ピクセルに変換</li>
-      </ul>
-      <p style="color:#444;font-size:17px;">この間ずっと、Renderer Process はメモリにデータを溜め込みながら動いてます。Gmail のような重いサイトだと、ここで <b>300〜500 MB</b> まで膨らむことも。</p>
+      <svg viewBox="0 0 340 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Step 1 -->
+        <rect x="20" y="10" width="300" height="44" rx="8" fill="#f8f5ec" stroke="#c4341c" stroke-width="2"/>
+        <text x="40" y="38" fill="#c4341c" font-size="14" font-weight="700">1. DNS</text>
+        <text x="110" y="38" fill="#444" font-size="14">ドメイン → IP アドレス</text>
+
+        <line x1="170" y1="54" x2="170" y2="74" stroke="#888" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+        <!-- Step 2 -->
+        <rect x="20" y="74" width="300" height="44" rx="8" fill="#f8f5ec" stroke="#c4341c" stroke-width="2"/>
+        <text x="40" y="102" fill="#c4341c" font-size="14" font-weight="700">2. HTTP</text>
+        <text x="110" y="102" fill="#444" font-size="14">HTML をダウンロード</text>
+
+        <line x1="170" y1="118" x2="170" y2="138" stroke="#888" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+        <!-- Step 3 -->
+        <rect x="20" y="138" width="300" height="44" rx="8" fill="#f8f5ec" stroke="#c4341c" stroke-width="2"/>
+        <text x="40" y="166" fill="#c4341c" font-size="14" font-weight="700">3. Parse</text>
+        <text x="110" y="166" fill="#444" font-size="14">CSS / JS / 画像も取得</text>
+
+        <line x1="170" y1="182" x2="170" y2="202" stroke="#888" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+        <!-- Step 4 -->
+        <rect x="20" y="202" width="300" height="44" rx="8" fill="#edf7f0" stroke="#2d7a3e" stroke-width="2"/>
+        <text x="40" y="230" fill="#2d7a3e" font-size="14" font-weight="700">4. Render</text>
+        <text x="120" y="230" fill="#444" font-size="14">ピクセルに描画</text>
+
+        <text x="170" y="272" text-anchor="middle" fill="#888" font-size="13">この間、メモリにデータが溜まっていく</text>
+      </svg>
     </div>
     <div>
-<pre class="diagram">
-URL: https://example.com
-       ↓
-<span class="yellow">[ 1. DNS ]</span> example.com = 203.0.113.5
-       ↓
-<span class="yellow">[ 2. HTTP ]</span> GET / → HTML 取得
-       ↓
-<span class="yellow">[ 3. Parse ]</span> HTML 解析
-       ↓ <span class="gray">&lt;link&gt; &lt;script&gt; &lt;img&gt; を発見</span>
-追加ダウンロード並列実行
-       ↓
-<span class="yellow">[ 4. Render ]</span>
-   DOM ツリー組み立て
-   ↓
-   レイアウト計算
-   ↓
-   <span class="green">ピクセルに描画</span>
-</pre>
-      <div class="term-card" style="margin-top:18px;">
-        <div class="term-label">TERM</div>
-        <div class="term-name">Blink (Rendering Engine)</div>
-        <div class="term-desc">HTML/CSS を解析して画面に描く Chrome のエンジン。Safari の WebKit から派生して、今は Chrome 独自に発展。Edge や Opera など多くのブラウザでも使われている。</div>
+      <p>URL からページが表示されるまで、おおまかに <b>4ステップ</b>。</p>
+      <p>DNS でアドレスを変換し、HTML を取得、<br>CSS/JS/画像を並列で取得して、最後に画面に描画します。</p>
+      <div class="note-box" style="margin-top:12px;">
+        Gmail のような重いサイトだと、ここで <b>300〜500 MB</b> まで膨らむことも。
       </div>
     </div>
   </div>
 </section>
 
-<!-- =============== 8. STEP 3: アクティブ + Site Isolation =============== -->
+<!-- =============== 9. STEP 3: Site Isolation =============== -->
 <section class="slide">
   <div class="chapter-hero">
-    <div class="ch-num">— STEP 03 / 05</div>
-    <h2>アクティブなタブの中</h2>
-    <div class="ch-en">"1 タブ 1 プロセス" は、もう昔の話</div>
+    <div class="ch-num">STEP 03</div>
+    <h2>タスクマネージャーに<br>Chrome が<span class="red">何個も</span>あるのは？</h2>
   </div>
 
-  <div class="body-2col">
+  <div class="body-2col" style="align-items:center;">
     <div>
-      <div class="qbox">
-        <div class="ql">素朴な疑問</div>
-        <div class="qt">タスクマネージャーを開くと、1 タブのはずなのに「Chrome」が何個も並んでるのは？</div>
-      </div>
-      <p>これが <b>Site Isolation</b>。Chrome 67 (2018年) からデフォルトで有効になった機能で、<b>1 タブの中でも、サイトが違えばプロセスを分ける</b> ようになりました。</p>
-      <p>例えば news.example.com を開くと、そのページに埋め込まれた YouTube 動画、Twitter ウィジェット、広告、解析タグ…がそれぞれ別プロセスに。1 タブで 5〜6 プロセス、ということも。</p>
-      <p style="color:#444;font-size:17px;">理由は <b style="background:none;color:#c4341c;">Spectre 脆弱性</b>。同じプロセスにいると、悪意あるサイトが他サイトのメモリを覗ける可能性があったので、物理的に分けることで防御している。</p>
+      <svg viewBox="0 0 420 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Tab frame -->
+        <rect x="20" y="10" width="380" height="180" rx="10" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="210" y="36" text-anchor="middle" fill="#888" font-size="13">news.example.com のタブ</text>
+
+        <!-- Main content -->
+        <rect x="40" y="48" width="160" height="50" rx="6" fill="#fdf5f0" stroke="#c4341c" stroke-width="2"/>
+        <text x="120" y="70" text-anchor="middle" fill="#c4341c" font-size="12" font-weight="700">メインページ</text>
+        <text x="120" y="88" text-anchor="middle" fill="#888" font-size="11">example.com</text>
+
+        <!-- iframe 1 -->
+        <rect x="220" y="48" width="160" height="50" rx="6" fill="#edf7f0" stroke="#2d7a3e" stroke-width="2"/>
+        <text x="300" y="70" text-anchor="middle" fill="#2d7a3e" font-size="12" font-weight="700">YouTube 動画</text>
+        <text x="300" y="88" text-anchor="middle" fill="#888" font-size="11">youtube.com</text>
+
+        <!-- iframe 2 -->
+        <rect x="40" y="112" width="160" height="50" rx="6" fill="#f0f4fa" stroke="#2d5fa3" stroke-width="2"/>
+        <text x="120" y="134" text-anchor="middle" fill="#2d5fa3" font-size="12" font-weight="700">広告</text>
+        <text x="120" y="152" text-anchor="middle" fill="#888" font-size="11">ads.com</text>
+
+        <!-- iframe 3 -->
+        <rect x="220" y="112" width="160" height="50" rx="6" fill="#f8f5ec" stroke="#888" stroke-width="2"/>
+        <text x="300" y="134" text-anchor="middle" fill="#444" font-size="12" font-weight="700">解析タグ</text>
+        <text x="300" y="152" text-anchor="middle" fill="#888" font-size="11">analytics.com</text>
+
+        <!-- Label -->
+        <text x="210" y="220" text-anchor="middle" fill="#c4341c" font-size="15" font-weight="900">1タブの中でも、サイトごとにプロセスが分かれる</text>
+        <text x="210" y="248" text-anchor="middle" fill="#888" font-size="14">1タブで 4〜6 プロセスになることも</text>
+        <text x="210" y="272" text-anchor="middle" fill="#888" font-size="13">これを Site Isolation と呼ぶ (2018年〜)</text>
+      </svg>
     </div>
     <div>
-<pre class="diagram">
-<span class="gray">タブ: news.example.com</span>
-
-┌──────────────────────────┐
-│ <span class="red">Renderer A: example.com</span>  │  メイン
-│ ┌────────────────────┐   │
-│ │  &lt;iframe ads.com&gt;  │   │
-│ └────────────────────┘   │
-│ ┌────────────────────┐   │
-│ │  &lt;iframe yt.com&gt;   │   │
-│ └────────────────────┘   │
-└──────────────────────────┘
-
-<span class="gray">↓ 実際の OS プロセス</span>
-
-[<span class="red">PID 100</span>] example.com
-[<span class="blue">PID 101</span>] ads.com  <span class="gray">(iframe)</span>
-[<span class="green">PID 102</span>] youtube.com <span class="gray">(iframe)</span>
-[<span class="yellow">PID 103</span>] analytics.com
-
-<span class="gray">→ メモリ +10〜15%</span>
-</pre>
-      <div class="term-card" style="margin-top:18px;">
-        <div class="term-label">TERM</div>
-        <div class="term-name">Site Isolation</div>
-        <div class="term-desc">サイト単位 (オリジン単位) でプロセスを分ける Chrome の仕組み。Spectre 攻撃などへの防御。代償として、メモリ使用量が 10-15% 増える。</div>
+      <p><b>Site Isolation</b> という仕組みで、1タブ内でもサイトが違えばプロセスが分かれます。</p>
+      <p>埋め込みの YouTube、広告、解析タグ…がそれぞれ別プロセスに。</p>
+      <div class="note-box" style="margin-top:12px;">
+        Spectre 脆弱性への対策。同じプロセスだと悪意あるサイトが他サイトのメモリを覗けるため。
+        <span class="small">代償として、メモリ使用量が 10〜15% 増える。</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- =============== 9. STEP 4: 休眠 =============== -->
+<!-- =============== 10. STEP 4: 休眠の状態 =============== -->
 <section class="slide">
   <div class="chapter-hero">
-    <div class="ch-num">— STEP 04 / 05</div>
-    <h2>タブの "休眠状態"</h2>
-    <div class="ch-en">バックグラウンドに行ったタブの運命</div>
+    <div class="ch-num">STEP 04</div>
+    <h2>バックグラウンドのタブは<br><span class="red">どうなる</span>？</h2>
   </div>
 
-  <div class="lead">
-    Chrome はタブを「表示中 or 表示してない」の 2 値じゃなくて、<b>細かい状態</b>を持っています。Page Lifecycle API という標準仕様。
+  <div class="lead" style="margin-bottom:16px;">
+    Chrome はタブを4つの状態で管理しています。
   </div>
 
   <div class="state-row">
-    <div class="state active">
-      <div class="state-name">— ACTIVE</div>
+    <div class="state s-active">
+      <div class="state-name">ACTIVE</div>
       <div class="state-jp">表示中</div>
-      <div class="state-desc">フォアグラウンドで操作中。フルにメモリと CPU を使う。</div>
-      <div class="state-mem">300-500 MB</div>
+      <div class="state-desc">フルにメモリとCPUを使っている状態。</div>
     </div>
-    <div class="state active" style="border-color:#888;">
-      <div class="state-name" style="color:#888;">— PASSIVE</div>
-      <div class="state-jp">バックグラウンド</div>
-      <div class="state-desc">他のタブに切り替えた直後。まだ生きていて、JS も動く。</div>
-      <div class="state-mem" style="color:#888;">300-500 MB</div>
+    <div class="state">
+      <div class="state-name" style="color:#888;">PASSIVE</div>
+      <div class="state-jp">裏にいる</div>
+      <div class="state-desc">他のタブに切り替えた直後。まだ生きている。</div>
     </div>
-    <div class="state frozen">
-      <div class="state-name">— FROZEN</div>
+    <div class="state s-frozen">
+      <div class="state-name">FROZEN</div>
       <div class="state-jp">凍結</div>
-      <div class="state-desc">5 分以上未使用 → JS の実行が停止。メモリは保持。</div>
-      <div class="state-mem">~200 MB</div>
+      <div class="state-desc">5分以上放置 → JS の実行が停止。メモリは保持。</div>
     </div>
-    <div class="state discarded">
-      <div class="state-name">— DISCARDED</div>
+    <div class="state s-discarded">
+      <div class="state-name">DISCARDED</div>
       <div class="state-jp">破棄</div>
-      <div class="state-desc">プロセスごと終了。タブの "見た目" だけ残る。再アクセス時にリロード。</div>
-      <div class="state-mem">~0 MB</div>
+      <div class="state-desc">プロセスごと終了。タブの見た目だけ残る。</div>
     </div>
   </div>
 
-  <div class="body-2col" style="margin-top:8px;">
+  <div class="note-box" style="margin-top:auto;">
+    「あれ、このタブ更新かかった？」→ Discarded からの復帰でリロードされた状態。
+    <span class="small">Chrome の Memory Saver モードは、使ってないタブを積極的に Discard してメモリを返す機能。</span>
+  </div>
+</section>
+
+<!-- =============== 11. 休眠の遷移図 =============== -->
+<section class="slide">
+  <h2>タブの状態は<span class="red">こう遷移する</span></h2>
+
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+    <svg viewBox="0 0 800 300" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width:800px;">
+      <!-- Active -->
+      <rect x="10" y="100" width="150" height="70" rx="10" fill="#edf7f0" stroke="#2d7a3e" stroke-width="3"/>
+      <text x="85" y="130" text-anchor="middle" fill="#2d7a3e" font-size="16" font-weight="900">Active</text>
+      <text x="85" y="153" text-anchor="middle" fill="#2d7a3e" font-size="13">表示中</text>
+
+      <!-- Arrow -->
+      <path d="M160,135 L220,135" stroke="#888" stroke-width="2" marker-end="url(#arr1)"/>
+      <text x="190" y="125" text-anchor="middle" fill="#888" font-size="12">切替</text>
+
+      <!-- Passive -->
+      <rect x="220" y="100" width="150" height="70" rx="10" fill="#f8f8f8" stroke="#888" stroke-width="2.5"/>
+      <text x="295" y="130" text-anchor="middle" fill="#444" font-size="16" font-weight="900">Passive</text>
+      <text x="295" y="153" text-anchor="middle" fill="#888" font-size="13">裏にいる</text>
+
+      <!-- Arrow -->
+      <path d="M370,135 L430,135" stroke="#888" stroke-width="2" marker-end="url(#arr1)"/>
+      <text x="400" y="125" text-anchor="middle" fill="#888" font-size="12">5分</text>
+
+      <!-- Frozen -->
+      <rect x="430" y="100" width="150" height="70" rx="10" fill="#fff5e0" stroke="#c8902a" stroke-width="2.5"/>
+      <text x="505" y="130" text-anchor="middle" fill="#c8902a" font-size="16" font-weight="900">Frozen</text>
+      <text x="505" y="153" text-anchor="middle" fill="#c8902a" font-size="13">JS 停止</text>
+
+      <!-- Arrow -->
+      <path d="M580,135 L640,135" stroke="#888" stroke-width="2" marker-end="url(#arr1)"/>
+      <text x="610" y="125" text-anchor="middle" fill="#888" font-size="12">メモリ不足</text>
+
+      <!-- Discarded -->
+      <rect x="640" y="100" width="150" height="70" rx="10" fill="#f0f4fa" stroke="#2d5fa3" stroke-width="2.5"/>
+      <text x="715" y="130" text-anchor="middle" fill="#2d5fa3" font-size="16" font-weight="900">Discarded</text>
+      <text x="715" y="153" text-anchor="middle" fill="#2d5fa3" font-size="13">プロセス終了</text>
+
+      <!-- Return arrows -->
+      <path d="M715,170 Q715,230 85,230 Q50,230 50,170" stroke="#2d7a3e" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#arr2)"/>
+      <text x="400" y="250" text-anchor="middle" fill="#2d7a3e" font-size="14" font-weight="700">クリックで復帰（Discarded はリロード）</text>
+
+      <!-- Memory labels -->
+      <text x="85" y="80" text-anchor="middle" fill="#2d7a3e" font-size="14" font-weight="700" font-family="JetBrains Mono">300-500 MB</text>
+      <text x="295" y="80" text-anchor="middle" fill="#888" font-size="14" font-weight="700" font-family="JetBrains Mono">300-500 MB</text>
+      <text x="505" y="80" text-anchor="middle" fill="#c8902a" font-size="14" font-weight="700" font-family="JetBrains Mono">~200 MB</text>
+      <text x="715" y="80" text-anchor="middle" fill="#2d5fa3" font-size="14" font-weight="700" font-family="JetBrains Mono">~0 MB</text>
+
+      <defs>
+        <marker id="arr1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="#888"/></marker>
+        <marker id="arr2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="#2d7a3e"/></marker>
+      </defs>
+    </svg>
+  </div>
+</section>
+
+<!-- =============== 12. STEP 5: タブの死 =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">STEP 05</div>
+    <h2>× を押すと、<span class="red">何が起きる</span>？</h2>
+  </div>
+
+  <div class="body-2col" style="align-items:center;">
     <div>
-      <div class="qbox">
-        <div class="ql">素朴な疑問</div>
-        <div class="qt">「あれ、このタブ更新かかった？」となるのはこれ？</div>
-      </div>
-      <p>そうみたいです。Discarded された後にクリックすると、タブはまだそこにあるけど、<b>中身は最初からリロード</b>される。</p>
-      <p>Chrome 設定の <b>Memory Saver</b> モードがこれを積極的にやってくれる機能。一定時間使ってないタブを Discarded にして、メモリを返す。</p>
+      <svg viewBox="0 0 360 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- X button -->
+        <rect x="120" y="10" width="120" height="44" rx="8" fill="#fdf5f0" stroke="#c4341c" stroke-width="2.5"/>
+        <text x="180" y="38" text-anchor="middle" fill="#c4341c" font-size="22" font-weight="900">× ボタン</text>
+
+        <line x1="180" y1="54" x2="180" y2="76" stroke="#888" stroke-width="2" stroke-dasharray="4 4"/>
+
+        <!-- Kill -->
+        <rect x="30" y="76" width="300" height="42" rx="8" fill="#fdf5f0" stroke="#c4341c" stroke-width="2"/>
+        <text x="180" y="102" text-anchor="middle" fill="#c4341c" font-size="14" font-weight="700">Chrome 本体 → OS: プロセス停止</text>
+
+        <line x1="180" y1="118" x2="180" y2="140" stroke="#888" stroke-width="2" stroke-dasharray="4 4"/>
+
+        <!-- Memory release -->
+        <rect x="30" y="140" width="300" height="50" rx="8" fill="#edf7f0" stroke="#2d7a3e" stroke-width="2"/>
+        <text x="180" y="162" text-anchor="middle" fill="#2d7a3e" font-size="14" font-weight="900">メモリ空間を解放</text>
+        <text x="180" y="180" text-anchor="middle" fill="#2d7a3e" font-size="13">数ミリ秒で完了</text>
+
+        <!-- What remains -->
+        <text x="180" y="220" text-anchor="middle" fill="#888" font-size="14" font-weight="700">残るもの:</text>
+        <text x="180" y="242" text-anchor="middle" fill="#888" font-size="13">閲覧履歴、Cookie、localStorage</text>
+      </svg>
     </div>
     <div>
-      <div class="term-card">
-        <div class="term-label">TERM</div>
-        <div class="term-name">Page Lifecycle API</div>
-        <div class="term-desc">Web 標準仕様。ブラウザがタブの状態を遷移させるための定義。開発者は <code>freeze</code>/<code>resume</code> イベントを使って、自分のサイトが凍結される前に状態を保存できる。</div>
-      </div>
-      <div class="term-card" style="margin-top:14px;background:#fff5e0;border-color:#c8902a;">
-        <div class="term-label" style="color:#c8902a;">TIP</div>
-        <div class="term-name">Memory Saver モード</div>
-        <div class="term-desc">chrome://settings/performance から有効化。使ってないタブを自動 Discard。Chrome 140 からは ML 予測で "戻る可能性が低いタブ" を狙い撃ち。</div>
+      <p>× を押すと、<b>OS がそのプロセスを即座に停止</b>して、メモリを回収します。</p>
+      <p>タブを閉じれば、そのタブ分のメモリは確実に戻ってくる。<br><b>30タブ閉じれば 2〜4 GB</b> 返ってきても不思議じゃない。</p>
+      <div class="note-box" style="margin-top:12px;">
+        bfcache（戻る/進む用のキャッシュ）がある場合は、閉じてもしばらくメモリを使い続けることも。
       </div>
     </div>
   </div>
 </section>
 
-<!-- =============== 10. STEP 5: 死 =============== -->
+<!-- =============== 13. メモリの内訳 =============== -->
 <section class="slide">
   <div class="chapter-hero">
-    <div class="ch-num">— STEP 05 / 05</div>
-    <h2>タブの死</h2>
-    <div class="ch-en">× ボタンを押した瞬間に何が起きるか</div>
-  </div>
-
-  <div class="body-2col">
-    <div>
-      <div class="qbox">
-        <div class="ql">素朴な疑問</div>
-        <div class="qt">タブを閉じた瞬間、メモリってちゃんと返ってくるの？</div>
-      </div>
-      <p>× を押すと、Browser Process が <b>OS にそのプロセスを kill するよう依頼</b>。OS は、そのプロセスが使ってたメモリ空間を回収します。</p>
-      <p>これは <b>即座に・確実に</b> 起きるみたいです。タブ閉じれば、そのタブ分のメモリは戻ってくる。30 タブ閉じれば 2〜4 GB 返ってきても不思議じゃない。</p>
-      <p style="color:#444;font-size:17px;">ただし、<b>同じプロセスを共有してる他タブが残ってる</b>と、メモリ完全には返らないことも。Site Isolation のせいで、思ったほど解放されないケースもあるとか。</p>
-    </div>
-    <div>
-<pre class="diagram">
-[ × ボタン押下 ]
-       ↓
-Browser Process が OS に依頼:
-"<span class="red">kill PID 100</span>"
-       ↓
-<span class="gray">OS の動き:</span>
-   1. プロセスを停止
-   2. メモリ空間を解放
-   3. ファイルハンドル等を回収
-       ↓
-<span class="green">~ 数ms で完了</span>
-
-<span class="gray">残ったもの:</span>
-   ・ブラウザの履歴
-   ・Cookie / localStorage
-   ・bfcache (もし対象なら)
-</pre>
-      <div class="term-card" style="margin-top:18px;">
-        <div class="term-label">TERM</div>
-        <div class="term-name">bfcache (Back/Forward Cache)</div>
-        <div class="term-desc">「戻る」「進む」を高速化する仕組み。タブのメモリスナップショットを保持して、戻ったら一瞬で復元。閉じてはいないけど、メモリは消費し続ける。</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- =============== 11. メモリの内訳 =============== -->
-<section class="slide">
-  <div class="chapter-hero">
-    <div class="ch-num">— BONUS</div>
-    <h2>では、<span class="red">タブ 30 個</span>のメモリは？</h2>
-    <div class="ch-en">タスクマネージャーを Shift+Esc で開いて見てみよう</div>
-  </div>
-
-  <div class="lead">
-    1 タブのメモリ使用量、こんな感じで内訳ができてます。タブの種類による差がすごい。
+    <div class="ch-num">BONUS</div>
+    <h2>タブ 30 個のメモリは？</h2>
   </div>
 
   <div class="mem-cards">
     <div class="mem-card">
       <div class="mb">~50 MB</div>
       <div class="name">空のタブ</div>
-      <div class="desc">about:blank。プロセス起動コストだけ。</div>
+      <div class="desc">プロセス起動コストだけ。</div>
     </div>
     <div class="mem-card">
       <div class="mb">~100 MB</div>
-      <div class="name">普通の記事ページ</div>
-      <div class="desc">ニュースサイトとか、軽めのページ。</div>
+      <div class="name">ニュース記事</div>
+      <div class="desc">軽めのページ。</div>
     </div>
     <div class="mem-card">
       <div class="mb">~300 MB</div>
       <div class="name">Gmail / Notion</div>
-      <div class="desc">JS で重い Web アプリ。</div>
+      <div class="desc">重い Web アプリ。</div>
     </div>
     <div class="mem-card">
       <div class="mb">~500 MB+</div>
-      <div class="name">Figma / Google Sheets</div>
-      <div class="desc">ヘビーな計算 / 描画系。</div>
+      <div class="name">Figma / Sheets</div>
+      <div class="desc">ヘビーな計算系。</div>
     </div>
   </div>
 
-  <div class="lead" style="color:#444;font-size:18px;">
-    つまり <b style="background:none;color:#c4341c;">タブ 30 個 = ~2-4 GB は普通</b>。ここに拡張機能 (1 個 ~50 MB × 15 個 = 750 MB) も足されるので、Chrome が "重い" のは設計通りの動作と言える…。
-  </div>
-
-  <div class="note-box" style="margin-top:6px;">
-    Shift + Esc で Chrome 内蔵タスクマネージャーが開きます。タブごとの内訳が見られるので、覗いてみると面白いです。
+  <div class="note-box">
+    タブ 30 個 = 2〜4 GB は普通。そこに拡張機能の分も加わる。
+    <span class="small">Chrome が「重い」のは設計通りの動作。Shift+Esc でタブごとの内訳が見られます。</span>
   </div>
 </section>
 
-<!-- =============== 12. まとめ =============== -->
+<!-- =============== 14. まとめ =============== -->
 <section class="slide">
-  <h2>タブは <span class="red">1 つの独立した OS プロセス</span><br>だった。</h2>
+  <h2>タブは <span class="red">どこから来て</span>、<span class="red">どこへ消える</span>のか。</h2>
 
-  <div class="recap-list">
-    <div class="recap-item">
-      <div class="num">— LIFE 01</div>
-      <div class="title">誕生</div>
-      <div class="desc">+ を押すと OS に新規プロセス依頼。V8 + Blink + DOM が起動して、空でも 30-50 MB。</div>
-    </div>
-    <div class="recap-item">
-      <div class="num">— LIFE 02</div>
-      <div class="title">活動中</div>
-      <div class="desc">Site Isolation で、1 タブ内でもサイト別にプロセス分割。Spectre 対策、代償はメモリ +10-15%。</div>
-    </div>
-    <div class="recap-item">
-      <div class="num">— LIFE 03</div>
-      <div class="title">休眠・死</div>
-      <div class="desc">Page Lifecycle で Frozen / Discarded に遷移。× で kill → メモリ即返却。</div>
-    </div>
+  <div class="note-box" style="font-size:26px;">
+    <b>どこから来るのか</b>
+    <span class="small" style="font-size:20px;color:#1a1a1a;">+ を押すと、OS が新しいプロセスとメモリ空間を作る。<br>そこに JS エンジンと描画エンジンが起動する。それがタブの正体。</span>
   </div>
 
-  <div class="final-box">
-    <div class="nv-label">— TAKEAWAY</div>
-    Chrome は「<b>あえてメモリを使って</b>、安定性とセキュリティを買っている」設計。<br>
-    <span style="font-size:17px;font-weight:500;color:#ccc;">— "タブを閉じる" のではなく "Discarded に任せる" が、たぶん現代的な使い方。</span>
+  <div class="note-box" style="font-size:26px;background:#fdf5f0;border-color:#c4341c;">
+    <b>どこへ消えるのか</b>
+    <span class="small" style="font-size:20px;color:#1a1a1a;">使われなくなったタブは、Frozen（凍結）→ Discarded（破棄）と段階的にメモリを返す。<br>× を押せば OS がプロセスを停止し、メモリは即座に解放される。</span>
+  </div>
+
+  <div class="lead" style="margin-top:auto;">
+    Chrome が「重い」のは、<b>1タブ = 1プロセス</b> という設計の代償。<br>
+    安定性とセキュリティを買うために、あえてメモリを使っている。
   </div>
 </section>
 
-<!-- =============== 13. 結論 =============== -->
+<!-- =============== 15. 結論 =============== -->
 <section class="slide cover">
   <h1 style="font-size:64px;">
-    タブが <span class="red">プロセス</span>だと知ると、<br>
-    Chrome の "重さ" は<br>
-    <span class="red">設計の代償</span> に見えてくる。
+    タブは <span class="red">OS のプロセス</span>から来て、<br>
+    <span class="red">OS のメモリ解放</span>へ消える。
   </h1>
-  <div class="sub" style="margin-top:30px;">
-    一番身近なアプリほど、<br>
-    <span class="hl">中身を覗くと面白い仕組みが隠れてた</span>。<br>
-    <span style="font-size:22px;color:#444;font-weight:500;display:block;margin-top:10px;">— Shift+Esc、ぜひ開いてみてください。</span>
+  <div class="sub" style="margin-top:28px;">
+    + を押せば OS がプロセスを生み、<br>
+    × を押せば OS がプロセスを殺す。<br>
+    <span class="hl">タブの一生は、OS のプロセスの一生だった。</span>
+    <span style="font-size:22px;color:#444;font-weight:500;display:block;margin-top:14px;">— ご清聴ありがとうございました</span>
   </div>
-  <div class="vol-badge" style="margin-top:30px;">END. ご清聴ありがとうございました</div>
 </section>
 
-<div class="page"><span class="cur" id="cur">1</span> / <span id="total">13</span></div>
+<div class="page"><span class="cur" id="cur">1</span> / <span id="total">15</span></div>
 <div class="nav">
   <button id="prev">← 前</button>
   <button id="next">次 →</button>
