@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DB設計 実践辞典</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #faf8f5;
+  --ink: #1a1a2e;
+  --ink-soft: #3a3a52;
+  --ink-faint: #8888a0;
+  --blue: #2563eb;
+  --blue-bg: #eff6ff;
+  --blue-light: #dbeafe;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --green: #059669;
+  --green-bg: #ecfdf5;
+  --amber: #d97706;
+  --amber-bg: #fffbeb;
+  --purple: #7c3aed;
+  --card: #ffffff;
+  --line: #e5e5e5;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Noto Sans JP', sans-serif;
+  overflow: hidden;
+  height: 100vh; width: 100vw;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+.slide {
+  position: absolute; inset: 0;
+  display: none; flex-direction: column;
+  overflow-y: auto;
+}
+.slide.active { display: flex; }
+
+/* ====== COVER ====== */
+.cover {
+  background: var(--ink);
+  color: #fff;
+  padding: 80px 100px;
+  justify-content: center;
+}
+.cover-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; color: var(--blue);
+  letter-spacing: 0.3em; text-transform: uppercase;
+  margin-bottom: 40px;
+}
+.cover h1 {
+  font-size: 88px; font-weight: 900;
+  line-height: 1.1; letter-spacing: -0.04em;
+  margin-bottom: 20px;
+}
+.cover h1 span { color: var(--blue); }
+.cover-sub {
+  font-size: 28px; color: #999;
+  font-weight: 500; margin-bottom: 60px;
+}
+.cover-chapters {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px 48px;
+}
+.cover-ch {
+  display: flex; align-items: center; gap: 16px;
+  font-size: 18px; color: #777;
+}
+.cover-ch-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; color: var(--blue);
+  letter-spacing: 0.15em;
+  min-width: 36px;
+}
+
+/* ====== CHAPTER BREAK ====== */
+.ch-break {
+  padding: 0 100px 100px;
+  justify-content: flex-end;
+  position: relative; overflow: hidden;
+}
+.ch-break .bg-num {
+  position: absolute; right: -10px; bottom: -50px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 360px; font-weight: 900;
+  opacity: 0.06; line-height: 1;
+  pointer-events: none;
+}
+.ch-break .ch-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; letter-spacing: 0.25em;
+  text-transform: uppercase; margin-bottom: 20px;
+}
+.ch-break h2 {
+  font-size: 64px; font-weight: 900;
+  line-height: 1.15; letter-spacing: -0.03em;
+  margin-bottom: 20px;
+}
+.ch-break .ch-desc {
+  font-size: 22px; color: var(--ink-faint);
+  line-height: 1.7; max-width: 600px;
+}
+
+/* chapter color themes */
+.ch-blue { background: var(--blue-bg); }
+.ch-blue .ch-label, .ch-blue .bg-num { color: var(--blue); }
+.ch-green { background: var(--green-bg); }
+.ch-green .ch-label, .ch-green .bg-num { color: var(--green); }
+.ch-amber { background: var(--amber-bg); }
+.ch-amber .ch-label, .ch-amber .bg-num { color: var(--amber); }
+.ch-red { background: var(--red-bg); }
+.ch-red .ch-label, .ch-red .bg-num { color: var(--red); }
+
+/* ====== CONTENT SLIDE ====== */
+.content {
+  padding: 52px 80px 80px;
+}
+.slide-head {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 36px;
+  padding-bottom: 16px;
+  border-bottom: 3px solid var(--ink);
+}
+.slide-icon {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.slide-icon svg { width: 26px; height: 26px; }
+.slide-head h3 {
+  font-size: 40px; font-weight: 900;
+  letter-spacing: -0.02em; line-height: 1.15;
+}
+.slide-head .badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 4px 10px; border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* ====== ENTRY CARD ====== */
+.entries { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.entry {
+  display: grid;
+  grid-template-columns: 1fr 44px 1fr;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px 28px;
+  min-height: 60px;
+}
+.entry-key {
+  font-size: 22px; font-weight: 700;
+  line-height: 1.4;
+}
+.entry-arrow {
+  font-size: 22px; font-weight: 900;
+  color: var(--blue); text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+.entry-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 19px; color: var(--ink-soft);
+  line-height: 1.5;
+}
+.entry-val small {
+  display: block; font-size: 14px;
+  color: var(--ink-faint); margin-top: 2px;
+}
+
+/* ====== DIAGRAM AREA ====== */
+.diagram {
+  flex: 1; display: flex;
+  align-items: center; justify-content: center;
+  padding: 16px 0;
+}
+.diagram svg { width: 100%; height: auto; }
+
+/* ====== COMPARE (NG/OK) ====== */
+.compare-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; margin-bottom: 20px;
+}
+.compare-row:last-child { margin-bottom: 0; }
+.cmp-box {
+  padding: 28px 32px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+}
+.cmp-ng {
+  background: var(--red-bg);
+  border-color: var(--red);
+}
+.cmp-ok {
+  background: var(--green-bg);
+  border-color: var(--green);
+}
+.cmp-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.15em; margin-bottom: 14px;
+}
+.cmp-ng .cmp-label { color: var(--red); }
+.cmp-ok .cmp-label { color: var(--green); }
+.cmp-text {
+  font-size: 20px; line-height: 1.7;
+  font-weight: 500;
+}
+.cmp-text code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px; background: rgba(0,0,0,0.06);
+  padding: 2px 8px; border-radius: 4px;
+}
+
+/* ====== CARD BLOCK (勘違い) ====== */
+.insight-card {
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 16px;
+}
+.insight-card:last-child { margin-bottom: 0; }
+.insight-q {
+  font-size: 24px; font-weight: 900;
+  margin-bottom: 16px; line-height: 1.3;
+}
+.insight-body {
+  font-size: 20px; line-height: 1.8;
+  color: var(--ink-soft);
+}
+.insight-body strong {
+  color: var(--ink); font-weight: 700;
+}
+
+/* ====== Q&A ====== */
+.qa-grid { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+.qa-row {
+  display: grid; grid-template-columns: 80px 1fr;
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.qa-num {
+  background: var(--ink);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px; font-weight: 700;
+}
+.qa-content { padding: 18px 28px; }
+.qa-question {
+  font-size: 22px; font-weight: 700;
+  margin-bottom: 8px; line-height: 1.35;
+}
+.qa-answer {
+  font-size: 18px; color: var(--ink-soft);
+  line-height: 1.6;
+}
+.qa-answer span.ok { color: var(--green); font-weight: 700; }
+.qa-answer span.ng { color: var(--red); font-weight: 700; }
+
+/* ====== NAV ====== */
+.pg {
+  position: fixed; bottom: 22px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; color: var(--ink-faint);
+  letter-spacing: 0.1em; z-index: 10;
+  pointer-events: none;
+}
+.pg b { color: var(--ink); font-weight: 700; }
+.nav { position: fixed; bottom: 16px; z-index: 10; }
+.nav-l { left: 28px; }
+.nav-r { right: 28px; }
+.nav button {
+  background: var(--card); border: 2px solid var(--line);
+  padding: 8px 22px; border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; cursor: pointer; font-weight: 500;
+  color: var(--ink-soft); transition: all 0.15s;
+}
+.nav button:hover {
+  background: var(--ink); border-color: var(--ink); color: #fff;
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 1. COVER ===== -->
+<section class="slide cover active">
+  <div class="cover-label">Personal Reference</div>
+  <h1>DB設計<br><span>実践辞典</span></h1>
+  <p class="cover-sub">要件の言葉を DB・実装に変換する</p>
+  <div class="cover-chapters">
+    <div class="cover-ch"><span class="cover-ch-num">01</span>課題感チェックリスト</div>
+    <div class="cover-ch"><span class="cover-ch-num">02</span>要件言語 → 技術実装 変換辞典</div>
+    <div class="cover-ch"><span class="cover-ch-num">03</span>正規化すべきタイミング</div>
+    <div class="cover-ch"><span class="cover-ch-num">04</span>勘どころまとめ</div>
+  </div>
+</section>
+
+<!-- ===== 2. Ch.1 BREAK ===== -->
+<section class="slide ch-break ch-blue">
+  <div class="bg-num">01</div>
+  <div class="ch-label">Chapter 01</div>
+  <h2>課題感<br>チェックリスト</h2>
+  <p class="ch-desc">「このフレーズが聞こえたら設計を疑え」<br>を言語化したリスト。</p>
+</section>
+
+<!-- ===== 3. 課題感チェックリスト ① ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--blue-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round"><path d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+    </div>
+    <h3>課題感チェックリスト</h3>
+    <span class="badge" style="background:var(--blue-bg);color:var(--blue);">1 / 2</span>
+  </div>
+  <div class="entries">
+    <div class="entry"><div class="entry-key">同じ情報を複数箇所に書いている</div><div class="entry-arrow">→</div><div class="entry-val">正規化</div></div>
+    <div class="entry"><div class="entry-key">〇〇を変えたら全レコード更新が必要</div><div class="entry-arrow">→</div><div class="entry-val">正規化・外部キー参照へ</div></div>
+    <div class="entry"><div class="entry-key">1ユーザーに1つしか紐づけられない</div><div class="entry-arrow">→</div><div class="entry-val">中間テーブルへ</div></div>
+    <div class="entry"><div class="entry-key">グループごとにロールが違う</div><div class="entry-arrow">→</div><div class="entry-val">中間テーブルに role カラム</div></div>
+    <div class="entry"><div class="entry-key">どの画面で誰が何を見られるか複雑</div><div class="entry-arrow">→</div><div class="entry-val">権限設計の見直し</div></div>
+  </div>
+</section>
+
+<!-- ===== 4. 課題感チェックリスト ② ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--blue-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round"><path d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+    </div>
+    <h3>課題感チェックリスト</h3>
+    <span class="badge" style="background:var(--blue-bg);color:var(--blue);">2 / 2</span>
+  </div>
+  <div class="entries">
+    <div class="entry"><div class="entry-key">集計クエリが遅い・複雑</div><div class="entry-arrow">→</div><div class="entry-val">スキーマ or index の見直し</div></div>
+    <div class="entry"><div class="entry-key">カラムが 20 個を超えてきた</div><div class="entry-arrow">→</div><div class="entry-val">テーブル分割を検討</div></div>
+    <div class="entry"><div class="entry-key">NULL だらけのカラムがある</div><div class="entry-arrow">→</div><div class="entry-val">別テーブルへ切り出し</div></div>
+    <div class="entry"><div class="entry-key">カラム名に連番がある (〇〇_1, 〇〇_2)</div><div class="entry-arrow">→</div><div class="entry-val">繰り返し → 別テーブルへ</div></div>
+    <div class="entry"><div class="entry-key">削除したデータをあとで参照したい</div><div class="entry-arrow">→</div><div class="entry-val">論理削除 (deleted_at) へ</div></div>
+  </div>
+</section>
+
+<!-- ===== 5. Ch.2 BREAK ===== -->
+<section class="slide ch-break ch-green">
+  <div class="bg-num">02</div>
+  <div class="ch-label">Chapter 02</div>
+  <h2>要件言語 →<br>技術実装 変換辞典</h2>
+  <p class="ch-desc">ヒアリングで出てくる言葉を、<br>そのまま DB 設計・実装に変換する。</p>
+</section>
+
+<!-- ===== 6. 所属・紐づき (図解) ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--green-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    </div>
+    <h3>所属・紐づき</h3>
+    <span class="badge" style="background:var(--green-bg);color:var(--green);">図解</span>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1000 420" style="max-width:1000px;font-family:'Noto Sans JP',sans-serif;">
+      <!-- 1対多 -->
+      <text x="240" y="32" font-size="20" font-weight="900" fill="var(--ink)" text-anchor="middle">1 対 多 (has_many)</text>
+      <rect x="40" y="52" width="180" height="140" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="2.5"/>
+      <rect x="40" y="52" width="180" height="44" rx="10" fill="var(--ink)"/>
+      <rect x="40" y="82" width="180" height="14" fill="var(--ink)"/>
+      <text x="130" y="82" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">users</text>
+      <text x="60" y="120" font-size="16" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace">id</text>
+      <text x="60" y="146" font-size="16" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace">name</text>
+      <text x="60" y="172" font-size="16" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace">email</text>
+
+      <rect x="300" y="52" width="180" height="140" rx="10" fill="var(--card)" stroke="var(--blue)" stroke-width="2.5"/>
+      <rect x="300" y="52" width="180" height="44" rx="10" fill="var(--blue)"/>
+      <rect x="300" y="82" width="180" height="14" fill="var(--blue)"/>
+      <text x="390" y="82" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">posts</text>
+      <text x="320" y="120" font-size="16" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace">id</text>
+      <text x="320" y="146" font-size="16" fill="var(--blue)" font-weight="700" font-family="'JetBrains Mono',monospace">user_id  ← FK</text>
+      <text x="320" y="172" font-size="16" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace">title</text>
+
+      <line x1="220" y1="100" x2="300" y2="100" stroke="var(--ink)" stroke-width="2"/>
+      <text x="230" y="95" font-size="14" font-weight="700" fill="var(--ink)">1</text>
+      <text x="284" y="95" font-size="14" font-weight="700" fill="var(--ink)">N</text>
+
+      <!-- 多対多 -->
+      <text x="500" y="266" font-size="20" font-weight="900" fill="var(--ink)" text-anchor="middle">多 対 多 (中間テーブル)</text>
+      <rect x="40" y="286" width="180" height="120" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="2.5"/>
+      <rect x="40" y="286" width="180" height="44" rx="10" fill="var(--ink)"/>
+      <rect x="40" y="316" width="180" height="14" fill="var(--ink)"/>
+      <text x="130" y="316" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">users</text>
+      <text x="60" y="354" font-size="16" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace">id</text>
+      <text x="60" y="380" font-size="16" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace">name</text>
+
+      <!-- 中間テーブル -->
+      <rect x="320" y="286" width="360" height="120" rx="10" fill="var(--blue-bg)" stroke="var(--blue)" stroke-width="2.5" stroke-dasharray="6,3"/>
+      <rect x="320" y="286" width="360" height="44" rx="10" fill="var(--blue)"/>
+      <rect x="320" y="316" width="360" height="14" fill="var(--blue)"/>
+      <text x="500" y="316" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">user_groups（中間）</text>
+      <text x="340" y="354" font-size="15" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace">user_id / group_id</text>
+      <text x="340" y="378" font-size="15" fill="var(--blue)" font-weight="500" font-family="'JetBrains Mono',monospace">role / status / position</text>
+      <text x="340" y="398" font-size="15" fill="var(--blue)" font-weight="500" font-family="'JetBrains Mono',monospace">joined_at / left_at</text>
+
+      <rect x="780" y="286" width="180" height="120" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="2.5"/>
+      <rect x="780" y="286" width="180" height="44" rx="10" fill="var(--ink)"/>
+      <rect x="780" y="316" width="180" height="14" fill="var(--ink)"/>
+      <text x="870" y="316" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">groups</text>
+      <text x="800" y="354" font-size="16" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace">id</text>
+      <text x="800" y="380" font-size="16" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace">name</text>
+
+      <line x1="220" y1="346" x2="320" y2="346" stroke="var(--blue)" stroke-width="2"/>
+      <line x1="680" y1="346" x2="780" y2="346" stroke="var(--blue)" stroke-width="2"/>
+      <text x="230" y="340" font-size="14" font-weight="700" fill="var(--blue)">N</text>
+      <text x="304" y="340" font-size="14" font-weight="700" fill="var(--blue)">1</text>
+      <text x="690" y="340" font-size="14" font-weight="700" fill="var(--blue)">1</text>
+      <text x="764" y="340" font-size="14" font-weight="700" fill="var(--blue)">N</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ===== 7. 所属・紐づき (辞書) ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--green-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    </div>
+    <h3>所属・紐づき</h3>
+    <span class="badge" style="background:var(--green-bg);color:var(--green);">辞典</span>
+  </div>
+  <div class="entries">
+    <div class="entry"><div class="entry-key">〇〇に属している</div><div class="entry-arrow">→</div><div class="entry-val">belongs_to / 外部キー (〇〇_id)</div></div>
+    <div class="entry"><div class="entry-key">〇〇を複数持てる</div><div class="entry-arrow">→</div><div class="entry-val">has_many / 1対多</div></div>
+    <div class="entry"><div class="entry-key">互いに複数持てる</div><div class="entry-arrow">→</div><div class="entry-val">多対多 = 中間テーブル</div></div>
+    <div class="entry"><div class="entry-key">複数組織に所属できる</div><div class="entry-arrow">→</div><div class="entry-val">中間テーブル + role + status</div></div>
+    <div class="entry"><div class="entry-key">〇〇の中での順番がある</div><div class="entry-arrow">→</div><div class="entry-val">中間テーブルに position カラム</div></div>
+    <div class="entry"><div class="entry-key">メインの〇〇がある</div><div class="entry-arrow">→</div><div class="entry-val">中間テーブルに is_primary</div></div>
+  </div>
+</section>
+
+<!-- ===== 8. 権限・ロール (図解) ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--amber-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h3>権限・ロール</h3>
+    <span class="badge" style="background:var(--amber-bg);color:var(--amber);">図解</span>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 960 360" style="max-width:960px;font-family:'Noto Sans JP',sans-serif;">
+      <!-- role enum -->
+      <text x="200" y="32" font-size="20" font-weight="900" fill="var(--ink)" text-anchor="middle">role カラム (enum)</text>
+      <rect x="40" y="52" width="320" height="100" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>
+      <text x="200" y="90" font-size="18" font-weight="700" fill="var(--ink)" text-anchor="middle">users テーブル</text>
+      <text x="200" y="125" font-size="16" font-family="'JetBrains Mono',monospace" fill="var(--ink-soft)" text-anchor="middle">role: <tspan fill="var(--amber)" font-weight="700">admin</tspan> | <tspan fill="var(--blue)" font-weight="700">member</tspan> | <tspan fill="var(--ink-faint)" font-weight="700">viewer</tspan></text>
+
+      <!-- 承認フロー -->
+      <text x="720" y="32" font-size="20" font-weight="900" fill="var(--ink)" text-anchor="middle">status カラム（承認フロー）</text>
+
+      <rect x="520" y="60" width="130" height="60" rx="30" fill="var(--amber-bg)" stroke="var(--amber)" stroke-width="2.5"/>
+      <text x="585" y="96" font-size="17" font-weight="700" fill="var(--amber)" text-anchor="middle">pending</text>
+
+      <rect x="720" y="60" width="130" height="60" rx="30" fill="var(--green-bg)" stroke="var(--green)" stroke-width="2.5"/>
+      <text x="785" y="96" font-size="17" font-weight="700" fill="var(--green)" text-anchor="middle">approved</text>
+
+      <rect x="720" y="150" width="130" height="60" rx="30" fill="var(--red-bg)" stroke="var(--red)" stroke-width="2.5"/>
+      <text x="785" y="186" font-size="17" font-weight="700" fill="var(--red)" text-anchor="middle">rejected</text>
+
+      <line x1="650" y1="90" x2="720" y2="90" stroke="var(--green)" stroke-width="2" marker-end="url(#ag)"/>
+      <line x1="650" y1="100" x2="680" y2="140" stroke="var(--red)" stroke-width="2"/>
+      <line x1="680" y1="140" x2="720" y2="180" stroke="var(--red)" stroke-width="2" marker-end="url(#ar)"/>
+      <text x="675" y="80" font-size="13" fill="var(--green)" font-weight="500">承認</text>
+      <text x="675" y="170" font-size="13" fill="var(--red)" font-weight="500">却下</text>
+
+      <!-- scope アクセス制御 -->
+      <text x="480" y="270" font-size="20" font-weight="900" fill="var(--ink)" text-anchor="middle">scope によるアクセス制御</text>
+      <rect x="40" y="290" width="880" height="60" rx="10" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+      <text x="480" y="328" font-size="20" font-family="'JetBrains Mono',monospace" fill="var(--ink-soft)" text-anchor="middle">WHERE user_id = current_user.id  →  自分のデータだけ見える</text>
+
+      <defs>
+        <marker id="ag" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="var(--green)"/></marker>
+        <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="var(--red)"/></marker>
+      </defs>
+    </svg>
+  </div>
+</section>
+
+<!-- ===== 9. 権限・ロール (辞書) ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--amber-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h3>権限・ロール</h3>
+    <span class="badge" style="background:var(--amber-bg);color:var(--amber);">辞典</span>
+  </div>
+  <div class="entries">
+    <div class="entry"><div class="entry-key">管理者と一般ユーザーがいる</div><div class="entry-arrow">→</div><div class="entry-val">role カラム (enum)</div></div>
+    <div class="entry"><div class="entry-key">〇〇の中での役割がある</div><div class="entry-arrow">→</div><div class="entry-val">中間テーブルに role カラム</div></div>
+    <div class="entry"><div class="entry-key">閲覧だけできる人がいる</div><div class="entry-arrow">→</div><div class="entry-val">permission カラム or 別テーブル</div></div>
+    <div class="entry"><div class="entry-key">申請して承認されたら使える</div><div class="entry-arrow">→</div><div class="entry-val">status: pending / approved / rejected</div></div>
+    <div class="entry"><div class="entry-key">一時的に権限を止めたい</div><div class="entry-arrow">→</div><div class="entry-val">suspended_at or status: suspended</div></div>
+    <div class="entry"><div class="entry-key">招待された人だけ入れる</div><div class="entry-arrow">→</div><div class="entry-val">invitations テーブル + token</div></div>
+  </div>
+</section>
+
+<!-- ===== 10. 状態・ステータス (図解) ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--purple);opacity:0.15;position:absolute;"></div>
+    <div class="slide-icon" style="background:#f3f0ff;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    </div>
+    <h3>状態・ステータス</h3>
+    <span class="badge" style="background:#f3f0ff;color:var(--purple);">図解</span>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 960 340" style="max-width:960px;font-family:'Noto Sans JP',sans-serif;">
+      <!-- ステータスの型 -->
+      <text x="200" y="32" font-size="20" font-weight="900" fill="var(--ink)" text-anchor="middle">status カラムのパターン</text>
+
+      <rect x="40" y="56" width="140" height="56" rx="28" fill="var(--blue-bg)" stroke="var(--blue)" stroke-width="2.5"/>
+      <text x="110" y="90" font-size="18" font-weight="700" fill="var(--blue)" text-anchor="middle">draft</text>
+
+      <line x1="180" y1="84" x2="240" y2="84" stroke="var(--ink)" stroke-width="2" marker-end="url(#ab)"/>
+      <text x="210" y="74" font-size="13" fill="var(--ink-faint)" text-anchor="middle">公開</text>
+
+      <rect x="240" y="56" width="160" height="56" rx="28" fill="var(--green-bg)" stroke="var(--green)" stroke-width="2.5"/>
+      <text x="320" y="90" font-size="18" font-weight="700" fill="var(--green)" text-anchor="middle">published</text>
+
+      <line x1="400" y1="84" x2="460" y2="84" stroke="var(--ink)" stroke-width="2" marker-end="url(#ab)"/>
+      <text x="430" y="74" font-size="13" fill="var(--ink-faint)" text-anchor="middle">停止</text>
+
+      <rect x="460" y="56" width="170" height="56" rx="28" fill="var(--amber-bg)" stroke="var(--amber)" stroke-width="2.5"/>
+      <text x="545" y="90" font-size="18" font-weight="700" fill="var(--amber)" text-anchor="middle">suspended</text>
+
+      <!-- _at パターン -->
+      <text x="200" y="176" font-size="20" font-weight="900" fill="var(--ink)" text-anchor="middle">〇〇_at カラムのパターン</text>
+
+      <rect x="40" y="200" width="360" height="120" rx="12" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+      <text x="60" y="236" font-size="20" font-weight="700" fill="var(--ink)">NULL = まだやってない</text>
+      <text x="60" y="268" font-size="20" font-weight="700" fill="var(--green)">日時 = 完了</text>
+      <text x="60" y="300" font-size="16" font-family="'JetBrains Mono',monospace" fill="var(--ink-faint)">confirmed_at, deleted_at, read_at ...</text>
+
+      <!-- 期間 -->
+      <text x="700" y="176" font-size="20" font-weight="900" fill="var(--ink)" text-anchor="middle">期間管理</text>
+      <rect x="500" y="200" width="400" height="100" rx="12" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+      <rect x="560" y="240" width="280" height="8" rx="4" fill="var(--line)"/>
+      <rect x="560" y="240" width="180" height="8" rx="4" fill="var(--green)"/>
+      <circle cx="560" cy="244" r="8" fill="var(--green)"/>
+      <circle cx="740" cy="244" r="8" fill="var(--green)"/>
+      <text x="560" y="280" font-size="15" font-family="'JetBrains Mono',monospace" fill="var(--green)" text-anchor="middle">starts_at</text>
+      <text x="740" y="280" font-size="15" font-family="'JetBrains Mono',monospace" fill="var(--green)" text-anchor="middle">ends_at</text>
+      <text x="840" y="280" font-size="15" font-family="'JetBrains Mono',monospace" fill="var(--red)" text-anchor="middle">expires_at</text>
+      <circle cx="840" cy="244" r="8" fill="var(--red)"/>
+
+      <defs><marker id="ab" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="var(--ink)"/></marker></defs>
+    </svg>
+  </div>
+</section>
+
+<!-- ===== 11. 状態・ステータス (辞書) ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:#f3f0ff;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    </div>
+    <h3>状態・ステータス</h3>
+    <span class="badge" style="background:#f3f0ff;color:var(--purple);">辞典</span>
+  </div>
+  <div class="entries">
+    <div class="entry"><div class="entry-key">下書きと公開がある</div><div class="entry-arrow">→</div><div class="entry-val">status: draft / published</div></div>
+    <div class="entry"><div class="entry-key">削除しても残したい</div><div class="entry-arrow">→</div><div class="entry-val">deleted_at（論理削除）</div></div>
+    <div class="entry"><div class="entry-key">〇〇済みかどうか</div><div class="entry-arrow">→</div><div class="entry-val">〇〇_at カラム<small>null = 未、日時 = 済</small></div></div>
+    <div class="entry"><div class="entry-key">有効期間がある</div><div class="entry-arrow">→</div><div class="entry-val">starts_at + ends_at</div></div>
+    <div class="entry"><div class="entry-key">何回目か数えたい</div><div class="entry-arrow">→</div><div class="entry-val">counter_cache or count カラム</div></div>
+    <div class="entry"><div class="entry-key">順番を変えられる</div><div class="entry-arrow">→</div><div class="entry-val">position カラム + acts_as_list</div></div>
+  </div>
+</section>
+
+<!-- ===== 12. 集計・サマリー ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--blue-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+    </div>
+    <h3>集計・サマリー</h3>
+    <span class="badge" style="background:var(--blue-bg);color:var(--blue);">辞典</span>
+  </div>
+  <div class="entries">
+    <div class="entry"><div class="entry-key">チームごとの集計を見たい</div><div class="entry-arrow">→</div><div class="entry-val">GROUP BY 〇〇_id が書けるスキーマ</div></div>
+    <div class="entry"><div class="entry-key">月別の推移を見たい</div><div class="entry-arrow">→</div><div class="entry-val">created_at に index + GROUP BY</div></div>
+    <div class="entry"><div class="entry-key">ランキングを出したい</div><div class="entry-arrow">→</div><div class="entry-val">ORDER BY count DESC</div></div>
+    <div class="entry"><div class="entry-key">未対応件数を見たい</div><div class="entry-arrow">→</div><div class="entry-val">status = 'pending' の COUNT</div></div>
+    <div class="entry"><div class="entry-key">達成率を出したい</div><div class="entry-arrow">→</div><div class="entry-val">完了数 / 全体数<small>両方 COUNT できる構造</small></div></div>
+    <div class="entry"><div class="entry-key">期間を絞って見たい</div><div class="entry-arrow">→</div><div class="entry-val">date カラムに index</div></div>
+  </div>
+</section>
+
+<!-- ===== 13. 履歴・ログ ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--amber-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+    </div>
+    <h3>履歴・ログ</h3>
+    <span class="badge" style="background:var(--amber-bg);color:var(--amber);">辞典</span>
+  </div>
+  <div class="entries">
+    <div class="entry"><div class="entry-key">変更履歴を残したい</div><div class="entry-arrow">→</div><div class="entry-val">〇〇_histories テーブル<small>paper_trail gem</small></div></div>
+    <div class="entry"><div class="entry-key">誰が変更したか残したい</div><div class="entry-arrow">→</div><div class="entry-val">updated_by カラム or history に user_id</div></div>
+    <div class="entry"><div class="entry-key">操作ログを取りたい</div><div class="entry-arrow">→</div><div class="entry-val">activity_logs テーブル</div></div>
+    <div class="entry"><div class="entry-key">以前の値に戻せるようにしたい</div><div class="entry-arrow">→</div><div class="entry-val">versions テーブル<small>paper_trail</small></div></div>
+    <div class="entry"><div class="entry-key">既読管理したい</div><div class="entry-arrow">→</div><div class="entry-val">read_at カラム or 中間テーブル</div></div>
+    <div class="entry"><div class="entry-key">通知履歴を残したい</div><div class="entry-arrow">→</div><div class="entry-val">notifications テーブル + read_at</div></div>
+  </div>
+</section>
+
+<!-- ===== 14. 検索 + ファイル ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--green-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    </div>
+    <h3>検索・フィルタ / ファイル</h3>
+    <span class="badge" style="background:var(--green-bg);color:var(--green);">辞典</span>
+  </div>
+  <div class="entries">
+    <div class="entry"><div class="entry-key">名前で検索したい</div><div class="entry-arrow">→</div><div class="entry-val">LIKE 検索 / pg_search gem</div></div>
+    <div class="entry"><div class="entry-key">タグで絞り込みたい</div><div class="entry-arrow">→</div><div class="entry-val">tags テーブル + 中間テーブル</div></div>
+    <div class="entry"><div class="entry-key">フリーワード検索したい</div><div class="entry-arrow">→</div><div class="entry-val">全文検索 index<small>PostgreSQL tsvector</small></div></div>
+    <div class="entry"><div class="entry-key">画像をアップロードしたい</div><div class="entry-arrow">→</div><div class="entry-val">ActiveStorage / Carrierwave</div></div>
+    <div class="entry"><div class="entry-key">大きいファイルを扱いたい</div><div class="entry-arrow">→</div><div class="entry-val">S3 直接アップロード<small>Presigned URL</small></div></div>
+  </div>
+</section>
+
+<!-- ===== 15. 通知 + URL ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--red-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </div>
+    <h3>通知・連携 / URL</h3>
+    <span class="badge" style="background:var(--red-bg);color:var(--red);">辞典</span>
+  </div>
+  <div class="entries">
+    <div class="entry"><div class="entry-key">〇〇したら通知したい</div><div class="entry-arrow">→</div><div class="entry-val">after_create コールバック</div></div>
+    <div class="entry"><div class="entry-key">リアルタイムで更新したい</div><div class="entry-arrow">→</div><div class="entry-val">ActionCable (WebSocket)</div></div>
+    <div class="entry"><div class="entry-key">重い処理を非同期にしたい</div><div class="entry-arrow">→</div><div class="entry-val">ActiveJob + Sidekiq</div></div>
+    <div class="entry"><div class="entry-key">〇〇の中の△△を見たい</div><div class="entry-arrow">→</div><div class="entry-val">/〇〇/:id/△△ ネストした routes</div></div>
+    <div class="entry"><div class="entry-key">API として提供したい</div><div class="entry-arrow">→</div><div class="entry-val">/api/v1/ 名前空間 + JSON</div></div>
+  </div>
+</section>
+
+<!-- ===== 16. パフォーマンス ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--red-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    </div>
+    <h3>パフォーマンス</h3>
+    <span class="badge" style="background:var(--red-bg);color:var(--red);">辞典</span>
+  </div>
+  <div class="entries">
+    <div class="entry"><div class="entry-key">遅い</div><div class="entry-arrow">→</div><div class="entry-val">まず EXPLAIN ANALYZE</div></div>
+    <div class="entry"><div class="entry-key">一覧が遅い</div><div class="entry-arrow">→</div><div class="entry-val">N+1 → includes / eager_load</div></div>
+    <div class="entry"><div class="entry-key">検索が遅い</div><div class="entry-arrow">→</div><div class="entry-val">index 不足 → add_index</div></div>
+    <div class="entry"><div class="entry-key">大量データがある</div><div class="entry-arrow">→</div><div class="entry-val">pagination (kaminari) + index</div></div>
+    <div class="entry"><div class="entry-key">同時アクセスが多い</div><div class="entry-arrow">→</div><div class="entry-val">キャッシュ (Redis) + DB index</div></div>
+    <div class="entry"><div class="entry-key">集計が遅い</div><div class="entry-arrow">→</div><div class="entry-val">counter_cache / マテリアライズドビュー</div></div>
+  </div>
+</section>
+
+<!-- ===== 17. よくある勘違い ① ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--amber-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+    </div>
+    <h3>よくある勘違い ①</h3>
+    <span class="badge" style="background:var(--amber-bg);color:var(--amber);">注意</span>
+  </div>
+
+  <div class="insight-card" style="border-color:var(--red);">
+    <div class="insight-q">「削除したい」と言われたら</div>
+    <div class="compare-row" style="margin-top:12px;">
+      <div class="cmp-box cmp-ng"><div class="cmp-label">DESTROY（物理削除）</div><div class="cmp-text">本当に消す → <strong>復元できない</strong></div></div>
+      <div class="cmp-box cmp-ok"><div class="cmp-label">SOFT DELETE（論理削除）</div><div class="cmp-text"><code>deleted_at</code> → 残したいなら必ずこっち</div></div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-q">「ユーザーに複数の〇〇がある」</div>
+    <div class="insight-body">→ <strong>1対多</strong>で済む場合がほとんど<br>→ 「〇〇にも複数のユーザーが紐づく」なら → <strong>多対多</strong></div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-q">「設定を保存したい」</div>
+    <div class="insight-body">項目が固定 → <strong>カラム追加</strong>で十分<br>項目が増減 → <strong>settings JSON カラム</strong><br>柔軟性が必要 → <strong>別テーブル (key-value)</strong></div>
+  </div>
+</section>
+
+<!-- ===== 18. よくある勘違い ② ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--amber-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+    </div>
+    <h3>よくある勘違い ②</h3>
+    <span class="badge" style="background:var(--amber-bg);color:var(--amber);">注意</span>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-q">「コメントしたい」</div>
+    <div class="insight-body">対象が <strong>1種類</strong> → 普通の外部キー<br>対象が <strong>複数種類</strong> → <code style="font-family:'JetBrains Mono',monospace;background:rgba(0,0,0,0.06);padding:2px 8px;border-radius:4px;">commentable_type + commentable_id</code><br>（polymorphic association）</div>
+  </div>
+
+  <div class="insight-card" style="border-color:var(--amber);background:var(--amber-bg);">
+    <div class="insight-q">「履歴として残したい」</div>
+    <div class="insight-body">→ 注文時の商品名・金額はあえて <strong>orders に直接保存</strong>する<br>→ 後でマスタが変わっても<strong>履歴は変わってはいけない</strong><br>→ 「変えたくないデータ」は<strong>スナップショットとして非正規化 OK</strong></div>
+  </div>
+</section>
+
+<!-- ===== 19. Ch.3 BREAK ===== -->
+<section class="slide ch-break ch-amber">
+  <div class="bg-num">03</div>
+  <div class="ch-label">Chapter 03</div>
+  <h2>正規化すべき<br>タイミング</h2>
+  <p class="ch-desc">「なんとなく感じる気持ち悪さ」を<br>第1〜第3正規化の言葉で説明できるようにする。</p>
+</section>
+
+<!-- ===== 20. 第1正規化 (図解) ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--amber-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    </div>
+    <h3>第1正規化：1つのセルに1つの値</h3>
+  </div>
+
+  <div class="compare-row">
+    <div class="cmp-box cmp-ng">
+      <div class="cmp-label">NG — カンマ区切りで保存</div>
+      <div class="cmp-text"><code>tags = "Ruby,Rails,SQL"</code></div>
+    </div>
+    <div class="cmp-box cmp-ok">
+      <div class="cmp-label">OK — 別テーブルに分離</div>
+      <div class="cmp-text"><code>tags</code> テーブル + 中間テーブル</div>
+    </div>
+  </div>
+  <div class="compare-row">
+    <div class="cmp-box cmp-ng">
+      <div class="cmp-label">NG — JSON 配列</div>
+      <div class="cmp-text"><code>colors = ["red","blue"]</code></div>
+    </div>
+    <div class="cmp-box cmp-ok">
+      <div class="cmp-label">OK（検索しないなら JSON 許容）</div>
+      <div class="cmp-text">別テーブルに1行ずつ</div>
+    </div>
+  </div>
+  <div class="compare-row">
+    <div class="cmp-box cmp-ng">
+      <div class="cmp-label">NG — 連番カラム</div>
+      <div class="cmp-text"><code>phone1, phone2, phone3</code></div>
+    </div>
+    <div class="cmp-box cmp-ok">
+      <div class="cmp-label">OK</div>
+      <div class="cmp-text"><code>phones</code> テーブルに<br><code>user_id + number</code> で複数行</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 21. 第2正規化 (図解) ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--amber-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <h3>第2正規化：重複を除去</h3>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;gap:20px;">
+    <div class="compare-row" style="margin-bottom:0;">
+      <div class="cmp-box cmp-ng">
+        <div class="cmp-label">NG — 毎行に顧客情報を重複保存</div>
+        <div class="cmp-text" style="font-size:18px;line-height:1.8;">
+          orders テーブルに<br>
+          <code>customer_name</code><br>
+          <code>customer_address</code><br>
+          を毎回保存している
+        </div>
+      </div>
+      <div class="cmp-box cmp-ok">
+        <div class="cmp-label">OK — テーブルを分離して参照</div>
+        <div class="cmp-text" style="font-size:18px;line-height:1.8;">
+          <code>customers</code> テーブルに切り出して<br>
+          <code>orders.customer_id</code> で参照<br>
+          → 変更は <strong>1箇所だけ</strong>で済む
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--amber-bg);border:2px solid var(--amber);border-radius:12px;padding:24px 32px;">
+      <div style="font-size:22px;font-weight:900;margin-bottom:8px;color:var(--amber);">判断基準</div>
+      <div style="font-size:22px;line-height:1.7;">「〇〇を変えたら<strong>全部の行を更新しないといけない</strong>」<br>→ 正規化できていない証拠。別テーブルに切り出す。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 22. 第3正規化 ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--amber-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+    </div>
+    <h3>第3正規化：推移的従属の除去</h3>
+  </div>
+
+  <div class="diagram" style="flex:none;">
+    <svg viewBox="0 0 900 200" style="max-width:900px;font-family:'Noto Sans JP',sans-serif;">
+      <!-- NG side -->
+      <text x="220" y="28" font-size="18" font-weight="900" fill="var(--red)" text-anchor="middle">NG</text>
+      <rect x="40" y="40" width="360" height="150" rx="10" fill="var(--red-bg)" stroke="var(--red)" stroke-width="2"/>
+      <text x="220" y="72" font-size="18" font-weight="700" fill="var(--ink)" text-anchor="middle">orders テーブル</text>
+      <line x1="60" y1="84" x2="380" y2="84" stroke="var(--red)" stroke-width="1" opacity="0.3"/>
+      <text x="60" y="110" font-size="16" font-family="'JetBrains Mono',monospace" fill="var(--ink-soft)">id</text>
+      <text x="60" y="136" font-size="16" font-family="'JetBrains Mono',monospace" fill="var(--ink-soft)">zip_code</text>
+      <text x="60" y="162" font-size="16" font-family="'JetBrains Mono',monospace" fill="var(--red)" font-weight="700">prefecture ← 不要!</text>
+      <text x="250" y="136" font-size="14" fill="var(--ink-faint)">zip_code → prefecture が</text>
+      <text x="250" y="156" font-size="14" fill="var(--ink-faint)">決まるから冗長</text>
+
+      <!-- OK side -->
+      <text x="680" y="28" font-size="18" font-weight="900" fill="var(--green)" text-anchor="middle">OK</text>
+      <rect x="500" y="40" width="180" height="130" rx="10" fill="var(--green-bg)" stroke="var(--green)" stroke-width="2"/>
+      <text x="590" y="72" font-size="16" font-weight="700" fill="var(--ink)" text-anchor="middle">orders</text>
+      <line x1="510" y1="84" x2="670" y2="84" stroke="var(--green)" stroke-width="1" opacity="0.3"/>
+      <text x="520" y="110" font-size="16" font-family="'JetBrains Mono',monospace" fill="var(--ink-soft)">id</text>
+      <text x="520" y="136" font-size="16" font-family="'JetBrains Mono',monospace" fill="var(--ink-soft)">zip_code</text>
+
+      <rect x="720" y="40" width="180" height="130" rx="10" fill="var(--green-bg)" stroke="var(--green)" stroke-width="2"/>
+      <text x="810" y="72" font-size="16" font-weight="700" fill="var(--ink)" text-anchor="middle">zip_codes</text>
+      <line x1="730" y1="84" x2="890" y2="84" stroke="var(--green)" stroke-width="1" opacity="0.3"/>
+      <text x="740" y="110" font-size="16" font-family="'JetBrains Mono',monospace" fill="var(--ink-soft)">zip_code</text>
+      <text x="740" y="136" font-size="16" font-family="'JetBrains Mono',monospace" fill="var(--green)" font-weight="700">prefecture</text>
+
+      <line x1="680" y1="110" x2="720" y2="110" stroke="var(--green)" stroke-width="2" stroke-dasharray="4,3"/>
+    </svg>
+  </div>
+
+  <div class="compare-row" style="margin-top:8px;">
+    <div class="cmp-box cmp-ng">
+      <div class="cmp-label">NG</div>
+      <div class="cmp-text">products に <code>category_id</code> と <code>category_name</code> を両方持つ</div>
+    </div>
+    <div class="cmp-box cmp-ok">
+      <div class="cmp-label">OK</div>
+      <div class="cmp-text"><code>categories</code> テーブルに name を持たせ<br><code>category_id</code> だけ参照</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 23. 非正規化してよいとき ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--green-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+    </div>
+    <h3>逆に非正規化してよいとき</h3>
+  </div>
+  <div class="entries">
+    <div class="entry"><div class="entry-key">集計・サマリーが毎回遅い</div><div class="entry-arrow">→</div><div class="entry-val">counter_cache<small>summary テーブルに定期保存</small></div></div>
+    <div class="entry"><div class="entry-key">JOIN が多すぎて複雑になった</div><div class="entry-arrow">→</div><div class="entry-val">denormalize して同テーブルに<small>「更新は1箇所だけ」を担保</small></div></div>
+    <div class="entry"><div class="entry-key">読み取り専用のレポート用</div><div class="entry-arrow">→</div><div class="entry-val">マテリアライズドビュー</div></div>
+    <div class="entry"><div class="entry-key">以前の状態を記録として残す</div><div class="entry-arrow">→</div><div class="entry-val">スナップショットとして直接保存<small>マスタ変更の影響を受けない</small></div></div>
+  </div>
+</section>
+
+<!-- ===== 24. Ch.4 BREAK ===== -->
+<section class="slide ch-break ch-red">
+  <div class="bg-num">04</div>
+  <div class="ch-label">Chapter 04</div>
+  <h2>勘どころ<br>まとめ</h2>
+  <p class="ch-desc">設計を始める前と、詰まったときに<br>手を止めて確認するチェックポイント。</p>
+</section>
+
+<!-- ===== 25. 設計前5問 ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--red-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3m.08 4h.01"/></svg>
+    </div>
+    <h3>設計前に必ず答える 5 問</h3>
+  </div>
+  <div class="qa-grid">
+    <div class="qa-row">
+      <div class="qa-num">Q1</div>
+      <div class="qa-content">
+        <div class="qa-question">この値が変わったとき、何行の更新が必要か？</div>
+        <div class="qa-answer"><span class="ng">複数行 → 正規化すべき</span>　　<span class="ok">1行 → OK</span></div>
+      </div>
+    </div>
+    <div class="qa-row">
+      <div class="qa-num">Q2</div>
+      <div class="qa-content">
+        <div class="qa-question">このカラム、NULL になるレコードはあるか？</div>
+        <div class="qa-answer"><span class="ng">多い → 別テーブルへの切り出しを検討</span></div>
+      </div>
+    </div>
+    <div class="qa-row">
+      <div class="qa-num">Q3</div>
+      <div class="qa-content">
+        <div class="qa-question">このデータ、他のテーブルにも同じものがあるか？</div>
+        <div class="qa-answer"><span class="ng">ある → 外部キーで参照する設計に変える</span></div>
+      </div>
+    </div>
+    <div class="qa-row">
+      <div class="qa-num">Q4</div>
+      <div class="qa-content">
+        <div class="qa-question">集計・検索・並び替えをするか？</div>
+        <div class="qa-answer"><span class="ok">する → 正規化してカラムに持つ</span>　　しない → JSON でも許容</div>
+      </div>
+    </div>
+    <div class="qa-row">
+      <div class="qa-num">Q5</div>
+      <div class="qa-content">
+        <div class="qa-question">将来この項目が増える可能性があるか？</div>
+        <div class="qa-answer"><span class="ng">ある → 別テーブルに切り出す</span>　　<span class="ok">ない → カラムで十分</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 26. 多対多パターン (図解) ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--blue-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <h3>多対多を見抜くパターン</h3>
+  </div>
+
+  <div style="background:var(--blue-bg);border:2px solid var(--blue);border-radius:12px;padding:24px 32px;margin-bottom:20px;">
+    <div style="font-size:24px;font-weight:900;line-height:1.6;">
+      「ユーザーは複数のグループに入れる」<span style="color:var(--blue);margin:0 12px;">かつ</span>「グループには複数のユーザーがいる」<br>
+      <span style="color:var(--blue);">→ 多対多 → 中間テーブル確定</span>
+    </div>
+  </div>
+
+  <div class="diagram" style="flex:none;">
+    <svg viewBox="0 0 900 180" style="max-width:900px;font-family:'Noto Sans JP',sans-serif;">
+      <text x="450" y="24" font-size="18" font-weight="900" fill="var(--ink)" text-anchor="middle">中間テーブルに検討すべきカラム</text>
+      <rect x="40" y="44" width="820" height="120" rx="12" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+
+      <rect x="70" y="70" width="120" height="44" rx="8" fill="var(--blue-bg)" stroke="var(--blue)" stroke-width="2"/>
+      <text x="130" y="98" font-size="16" font-weight="700" fill="var(--blue)" text-anchor="middle">role</text>
+      <text x="130" y="136" font-size="13" fill="var(--ink-faint)" text-anchor="middle">関係の中での役割</text>
+
+      <rect x="220" y="70" width="120" height="44" rx="8" fill="var(--green-bg)" stroke="var(--green)" stroke-width="2"/>
+      <text x="280" y="98" font-size="16" font-weight="700" fill="var(--green)" text-anchor="middle">status</text>
+      <text x="280" y="136" font-size="13" fill="var(--ink-faint)" text-anchor="middle">有効 / 無効 / 停止</text>
+
+      <rect x="370" y="70" width="150" height="44" rx="8" fill="var(--amber-bg)" stroke="var(--amber)" stroke-width="2"/>
+      <text x="445" y="98" font-size="16" font-weight="700" fill="var(--amber)" text-anchor="middle">joined_at</text>
+      <text x="445" y="136" font-size="13" fill="var(--ink-faint)" text-anchor="middle">期間管理</text>
+
+      <rect x="550" y="70" width="130" height="44" rx="8" fill="#f3f0ff" stroke="var(--purple)" stroke-width="2"/>
+      <text x="615" y="98" font-size="16" font-weight="700" fill="var(--purple)" text-anchor="middle">position</text>
+      <text x="615" y="136" font-size="13" fill="var(--ink-faint)" text-anchor="middle">順序</text>
+
+      <rect x="710" y="70" width="120" height="44" rx="8" fill="var(--red-bg)" stroke="var(--red)" stroke-width="2"/>
+      <text x="770" y="98" font-size="16" font-weight="700" fill="var(--red)" text-anchor="middle">via_type</text>
+      <text x="770" y="136" font-size="13" fill="var(--ink-faint)" text-anchor="middle">どこ経由か</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ===== 27. マイグレーション戦略 (図解) ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--green-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </div>
+    <h3>マイグレーション戦略</h3>
+    <span class="badge" style="background:var(--green-bg);color:var(--green);">図解</span>
+  </div>
+
+  <div class="diagram" style="flex:none;margin-bottom:16px;">
+    <svg viewBox="0 0 960 140" style="max-width:960px;font-family:'Noto Sans JP',sans-serif;">
+      <rect x="10" y="20" width="200" height="100" rx="12" fill="var(--blue-bg)" stroke="var(--blue)" stroke-width="2.5"/>
+      <text x="110" y="58" font-size="18" font-weight="900" fill="var(--blue)" text-anchor="middle">STEP 1</text>
+      <text x="110" y="82" font-size="15" fill="var(--ink-soft)" text-anchor="middle">新カラム追加</text>
+      <text x="110" y="104" font-size="13" fill="var(--ink-faint)" text-anchor="middle">（既存はそのまま）</text>
+
+      <path d="M210,70 L250,70" stroke="var(--ink)" stroke-width="2.5" marker-end="url(#am)"/>
+
+      <rect x="255" y="20" width="200" height="100" rx="12" fill="var(--amber-bg)" stroke="var(--amber)" stroke-width="2.5"/>
+      <text x="355" y="58" font-size="18" font-weight="900" fill="var(--amber)" text-anchor="middle">STEP 2</text>
+      <text x="355" y="82" font-size="15" fill="var(--ink-soft)" text-anchor="middle">バックフィル</text>
+      <text x="355" y="104" font-size="13" fill="var(--ink-faint)" text-anchor="middle">既存データを移行</text>
+
+      <path d="M455,70 L495,70" stroke="var(--ink)" stroke-width="2.5" marker-end="url(#am)"/>
+
+      <rect x="500" y="20" width="200" height="100" rx="12" fill="var(--green-bg)" stroke="var(--green)" stroke-width="2.5"/>
+      <text x="600" y="58" font-size="18" font-weight="900" fill="var(--green)" text-anchor="middle">STEP 3</text>
+      <text x="600" y="82" font-size="15" fill="var(--ink-soft)" text-anchor="middle">コード切替</text>
+      <text x="600" y="104" font-size="13" fill="var(--ink-faint)" text-anchor="middle">動作確認</text>
+
+      <path d="M700,70 L740,70" stroke="var(--ink)" stroke-width="2.5" marker-end="url(#am)"/>
+
+      <rect x="745" y="20" width="200" height="100" rx="12" fill="var(--red-bg)" stroke="var(--red)" stroke-width="2.5"/>
+      <text x="845" y="58" font-size="18" font-weight="900" fill="var(--red)" text-anchor="middle">STEP 4</text>
+      <text x="845" y="82" font-size="15" fill="var(--ink-soft)" text-anchor="middle">旧カラム削除</text>
+      <text x="845" y="104" font-size="13" fill="var(--ink-faint)" text-anchor="middle">掃除</text>
+
+      <defs><marker id="am" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="var(--ink)"/></marker></defs>
+    </svg>
+  </div>
+
+  <div class="entries">
+    <div class="entry" style="border-color:var(--red);"><div class="entry-key">「一気に移行する」は避ける</div><div class="entry-arrow">→</div><div class="entry-val">加算 → 確認 → 削除 の3ステップ</div></div>
+    <div class="entry"><div class="entry-key">バックフィルは冪等にする</div><div class="entry-arrow">→</div><div class="entry-val">find_or_create_by<small>何度実行しても同じ結果に</small></div></div>
+  </div>
+</section>
+
+<!-- ===== 28. セッション vs URL ===== -->
+<section class="slide content">
+  <div class="slide-head">
+    <div class="slide-icon" style="background:var(--blue-bg);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9m-9 9a9 9 0 0 1 9-9"/></svg>
+    </div>
+    <h3>セッション vs URL スコープ</h3>
+  </div>
+
+  <div class="compare-row" style="flex:1;">
+    <div class="cmp-box cmp-ng" style="display:flex;flex-direction:column;">
+      <div class="cmp-label">NG — セッションでグループを持つ</div>
+      <div class="cmp-text" style="font-size:20px;line-height:2;">
+        <code>session[:current_group_id]</code><br><br>
+        タブ複数開くと混乱する<br>
+        セッション切れで権限が崩れる<br>
+        URL をブックマークできない<br>
+        デバッグしにくい
+      </div>
+    </div>
+    <div class="cmp-box cmp-ok" style="display:flex;flex-direction:column;">
+      <div class="cmp-label">OK — URL でスコープする（推奨）</div>
+      <div class="cmp-text" style="font-size:20px;line-height:2;">
+        <code>/groups/:group_id/dashboard</code><br><br>
+        タブごとに独立して動作<br>
+        URL をブックマーク可能<br>
+        before_action で確認するだけ<br>
+        デバッグしやすい
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== NAV ====== -->
+<div class="pg">p. <b id="cur">1</b> / <span id="tot"></span></div>
+<div class="nav nav-l"><button id="prev">← 前</button></div>
+<div class="nav nav-r"><button id="next">次 →</button></div>
+
+<script>
+const S = document.querySelectorAll('.slide');
+let i = 0, N = S.length;
+document.getElementById('tot').textContent = N;
+
+function go(n) {
+  S[i].classList.remove('active');
+  i = (n + N) % N;
+  S[i].classList.add('active');
+  document.getElementById('cur').textContent = i + 1;
+  S[i].scrollTop = 0;
+}
+
+document.getElementById('next').onclick = () => go(i + 1);
+document.getElementById('prev').onclick = () => go(i - 1);
+document.onkeydown = e => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); go(i + 1); }
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(i - 1); }
+};
+</script>
+</body>
+</html>

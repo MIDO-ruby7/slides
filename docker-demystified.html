@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docker の呪文を解く</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #ffffff;
+  --ink: #1a1a1a;
+  --ink-soft: #444;
+  --ink-faint: #888;
+  --accent: #2d5fa3;
+  --line: #ddd;
+  --red: #c4341c;
+  --green: #2d7a3e;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Noto Sans JP', sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  padding: 60px 80px 80px;
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.slide.active { display: flex; }
+
+.tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 18px;
+  font-weight: 500;
+}
+
+h2 {
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 32px;
+  letter-spacing: -0.01em;
+}
+h2 .blue { color: var(--accent); }
+h2 .red { color: var(--red); }
+
+.cover { justify-content: center; }
+.cover .tag { font-size: 22px; margin-bottom: 32px; }
+.cover h1 {
+  font-size: 88px;
+  font-weight: 900;
+  line-height: 1.05;
+  margin-bottom: 30px;
+  letter-spacing: -0.03em;
+}
+.cover h1 .blue { color: var(--accent); }
+.cover .sub {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+.cover .sub .hl {
+  background: linear-gradient(transparent 60%, #cde0f5 60%);
+}
+
+.lead {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.lead b {
+  font-weight: 900;
+  background: linear-gradient(transparent 60%, #cde0f5 60%);
+}
+
+.note-box {
+  background: #f0f4fa;
+  border-left: 8px solid var(--accent);
+  padding: 24px 28px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+.note-box .small {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  display: block;
+  margin-top: 10px;
+}
+
+.body-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  flex: 1;
+  align-items: start;
+}
+
+.body-2col p {
+  font-size: 20px;
+  line-height: 1.7;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+.body-2col p b {
+  font-weight: 900;
+  background: linear-gradient(transparent 60%, #cde0f5 60%);
+}
+
+.body-2col ul.bullets {
+  list-style: none;
+  margin-bottom: 14px;
+}
+.body-2col ul.bullets li {
+  font-size: 20px;
+  line-height: 1.6;
+  padding: 8px 0 8px 28px;
+  position: relative;
+  font-weight: 500;
+}
+.body-2col ul.bullets li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 900;
+}
+.body-2col ul.bullets li b { font-weight: 900; }
+
+/* Chapter divider */
+.chapter-hero { margin-bottom: 26px; }
+.chapter-hero .ch-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.chapter-hero h2 {
+  font-size: 64px;
+  font-weight: 900;
+  margin-bottom: 6px;
+  line-height: 1.05;
+}
+.chapter-hero .ch-en {
+  font-size: 22px;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+/* Question box */
+.qbox {
+  background: #f0f4fa;
+  border-left: 8px solid var(--accent);
+  padding: 22px 26px;
+  margin-bottom: 24px;
+}
+.qbox .ql {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.qbox .qt {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+/* Warn box */
+.warn-box {
+  background: #fdf5f0;
+  border-left: 8px solid var(--red);
+  padding: 24px 28px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+.warn-box .small {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  display: block;
+  margin-top: 10px;
+}
+
+/* Command */
+.cmd-box {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  border-radius: 8px;
+  padding: 20px 26px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+.cmd-box .prompt { color: var(--green); }
+.cmd-box .comment { color: #666; }
+
+/* Comparison */
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.compare-card {
+  border: 3px solid var(--ink);
+  padding: 24px 26px;
+}
+.compare-card.ng { border-color: var(--red); }
+.compare-card.ok { border-color: var(--green); }
+
+.compare-card .head {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.compare-card.ng .head { color: var(--red); }
+.compare-card.ok .head { color: var(--green); }
+
+.compare-card .title {
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.compare-card p {
+  font-size: 18px;
+  line-height: 1.65;
+  font-weight: 500;
+}
+
+/* Recap */
+.recap-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.recap-item {
+  border: 3px solid var(--ink);
+  padding: 18px 22px;
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.recap-item .n {
+  background: var(--ink);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 900;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recap-item .t {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+.recap-item .t b {
+  font-weight: 900;
+  color: var(--accent);
+}
+
+/* Navigation */
+.page {
+  position: fixed;
+  bottom: 24px;
+  right: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--ink-faint);
+  font-weight: 500;
+  z-index: 10;
+}
+.page .cur { color: var(--ink); font-weight: 700; }
+
+.nav {
+  position: fixed;
+  bottom: 20px;
+  left: 32px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+.nav button {
+  background: var(--bg);
+  border: 2px solid var(--ink);
+  padding: 6px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.nav button:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+</style>
+</head>
+<body>
+
+<!-- =============== 1. 表紙 =============== -->
+<section class="slide cover active">
+  <div class="tag">DOCKER</div>
+  <h1>Docker、<br>便利だけど<br><span class="blue">中で何してるの？</span></h1>
+  <div class="sub">
+    「なんか動いてる」から<br>
+    <span class="hl">「何をしているか分かる」</span>へ
+  </div>
+</section>
+
+<!-- =============== 2. つかみ =============== -->
+<section class="slide">
+  <h2>Docker、<span class="blue">呪文みたい</span>じゃないですか？</h2>
+
+  <div class="note-box">
+    docker compose up と打つと何かが動き出す。<br>
+    docker exec -it ... bash と打つとなぜか別の画面になる。
+    <span class="small">…でも、何が起きてるか説明できますか？</span>
+  </div>
+
+  <div class="lead">
+    今日は <b>「Docker って結局なに？」</b> を、<br>
+    1つずつ疑問を解きながら見ていきます。
+  </div>
+</section>
+
+<!-- =============== 3. そもそも何？ =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">QUESTION 01</div>
+    <h2>そもそも Docker って<br><span class="blue">何をしてるの？</span></h2>
+  </div>
+
+  <div class="lead">
+    Docker は <b>プログラムとデータを箱に入れて隔離する</b> 仕組みです。
+  </div>
+
+  <div class="note-box">
+    この「箱」のことを <b>コンテナ</b> と呼びます。
+    <span class="small">コンテナの中には、プログラム・データ・動くために必要な部品がまとめて入っています。</span>
+  </div>
+</section>
+
+<!-- =============== 4. たとえ =============== -->
+<section class="slide">
+  <h2>マンションの<span class="blue">部屋</span>をイメージしてみる</h2>
+
+  <div class="body-2col">
+    <div>
+      <p>
+        マンションの各部屋は、壁で仕切られています。<br>
+        <b>隣の部屋の中身は見えないし、触れない。</b>
+      </p>
+      <p>
+        でも、水道や電気といった<b>建物の基盤は共有</b>している。
+      </p>
+      <p>
+        Docker のコンテナも同じです。<br>
+        各コンテナは完全に独立しているけれど、<br>
+        <b>マシンの基盤（OS の心臓部）は共有</b>しています。
+      </p>
+    </div>
+    <div>
+      <svg viewBox="0 0 420 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Building -->
+        <rect x="40" y="20" width="340" height="260" rx="12" fill="#f8f8f8" stroke="#ddd" stroke-width="2"/>
+        <text x="210" y="50" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="13">MACHINE (マンション)</text>
+
+        <!-- Room 1 -->
+        <rect x="65" y="70" width="135" height="120" rx="8" fill="#fff" stroke="#2d5fa3" stroke-width="2"/>
+        <text x="132" y="98" text-anchor="middle" fill="#2d5fa3" font-family="Noto Sans JP" font-size="14" font-weight="700">コンテナ A</text>
+        <text x="132" y="125" text-anchor="middle" fill="#444" font-family="Noto Sans JP" font-size="16" font-weight="900">Web サーバ</text>
+        <text x="132" y="150" text-anchor="middle" fill="#888" font-family="Noto Sans JP" font-size="13">+ データ</text>
+        <text x="132" y="175" text-anchor="middle" fill="#888" font-family="Noto Sans JP" font-size="13">+ 部品</text>
+
+        <!-- Room 2 -->
+        <rect x="220" y="70" width="135" height="120" rx="8" fill="#fff" stroke="#2d5fa3" stroke-width="2"/>
+        <text x="287" y="98" text-anchor="middle" fill="#2d5fa3" font-family="Noto Sans JP" font-size="14" font-weight="700">コンテナ B</text>
+        <text x="287" y="125" text-anchor="middle" fill="#444" font-family="Noto Sans JP" font-size="16" font-weight="900">DB サーバ</text>
+        <text x="287" y="150" text-anchor="middle" fill="#888" font-family="Noto Sans JP" font-size="13">+ データ</text>
+        <text x="287" y="175" text-anchor="middle" fill="#888" font-family="Noto Sans JP" font-size="13">+ 部品</text>
+
+        <!-- Wall between -->
+        <line x1="210" y1="70" x2="210" y2="190" stroke="#ddd" stroke-width="2" stroke-dasharray="6 4"/>
+        <text x="210" y="210" text-anchor="middle" fill="#aaa" font-family="Noto Sans JP" font-size="12">← 壁で隔離 →</text>
+
+        <!-- Foundation -->
+        <rect x="65" y="235" width="290" height="30" rx="6" fill="#f0f4fa" stroke="#2d5fa3" stroke-width="1.5"/>
+        <text x="210" y="255" text-anchor="middle" fill="#2d5fa3" font-family="Noto Sans JP" font-size="13" font-weight="700">共有の基盤（OS の心臓部）</text>
+
+        <text x="210" y="310" text-anchor="middle" fill="#888" font-family="Noto Sans JP" font-size="14">部屋は独立。でも基盤は共有。</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 5. なぜ隔離？ =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">QUESTION 02</div>
+    <h2>なぜ<span class="blue">隔離する</span>必要があるの？</h2>
+  </div>
+
+  <div class="lead">
+    同じマシンに複数のプログラムを直接入れると、<br>
+    <b>お互いが干渉し合って壊れる</b>ことがあるからです。
+  </div>
+
+  <div class="compare">
+    <div class="compare-card ng">
+      <div class="head">WITHOUT DOCKER</div>
+      <div class="title">直接入れると…</div>
+      <p>ライブラリのバージョンが競合したり、<br>1つ更新すると他が壊れたり、<br>「自分の環境では動く」問題が起きる。</p>
+    </div>
+    <div class="compare-card ok">
+      <div class="head">WITH DOCKER</div>
+      <div class="title">隔離すると…</div>
+      <p>各コンテナが独自のバージョンを持てる。<br>他のコンテナに影響しない。<br>チーム全員に同じ環境を配れる。</p>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 6. OS の話 =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">QUESTION 03</div>
+    <h2>「<span class="blue">基盤を共有</span>」って<br>どういうこと？</h2>
+  </div>
+
+  <div class="lead">
+    Docker を理解するには、まず <b>OS のしくみ</b> を知ると分かりやすくなります。
+  </div>
+
+  <div class="note-box">
+    OS は大きく分けて 2つの部品でできています。
+  </div>
+</section>
+
+<!-- =============== 7. カーネルと周辺部品 =============== -->
+<section class="slide">
+  <h2>OS = <span class="blue">カーネル</span> + <span class="blue">周辺部品</span></h2>
+
+  <div class="body-2col">
+    <div>
+      <div class="qbox">
+        <div class="ql">KERNEL</div>
+        <div class="qt">カーネル = OS の心臓部</div>
+      </div>
+      <p>CPU・メモリ・ディスクなどのハードウェアを<b>直接操作する唯一の存在</b>。</p>
+
+      <div class="qbox" style="margin-top:20px;">
+        <div class="ql">PERIPHERAL</div>
+        <div class="qt">周辺部品 = 翻訳者</div>
+      </div>
+      <p>プログラムからの命令を受け取って、カーネルに橋渡しする役目。<br>コマンドやライブラリなどがこれにあたります。</p>
+    </div>
+    <div>
+      <svg viewBox="0 0 380 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="70" y="20" width="240" height="55" rx="8" fill="#fff" stroke="#444" stroke-width="2"/>
+        <text x="190" y="52" text-anchor="middle" fill="#444" font-family="Noto Sans JP" font-size="16" font-weight="700">プログラム（アプリ）</text>
+
+        <line x1="190" y1="75" x2="190" y2="110" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="280" y="98" fill="#888" font-family="Noto Sans JP" font-size="13">命令を出す</text>
+
+        <rect x="50" y="110" width="280" height="65" rx="8" fill="#f0f4fa" stroke="#2d5fa3" stroke-width="2"/>
+        <text x="190" y="140" text-anchor="middle" fill="#2d5fa3" font-family="Noto Sans JP" font-size="16" font-weight="900">周辺部品</text>
+        <text x="190" y="162" text-anchor="middle" fill="#2d5fa3" font-family="Noto Sans JP" font-size="13">コマンド・ライブラリなど</text>
+
+        <line x1="190" y1="175" x2="190" y2="210" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="280" y="198" fill="#888" font-family="Noto Sans JP" font-size="13">翻訳して渡す</text>
+
+        <rect x="70" y="210" width="240" height="55" rx="8" fill="#fff" stroke="#2d7a3e" stroke-width="2"/>
+        <text x="190" y="242" text-anchor="middle" fill="#2d7a3e" font-family="Noto Sans JP" font-size="16" font-weight="900">カーネル（心臓部）</text>
+
+        <line x1="190" y1="265" x2="190" y2="295" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+        <rect x="70" y="295" width="240" height="35" rx="6" fill="#f8f8f8" stroke="#ddd" stroke-width="1.5"/>
+        <text x="190" y="318" text-anchor="middle" fill="#888" font-family="Noto Sans JP" font-size="13">ハードウェア（CPU / メモリ / ディスク）</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 8. Docker のカラクリ =============== -->
+<section class="slide">
+  <h2>Docker のコンテナは<br><span class="blue">カーネルを借りている</span></h2>
+
+  <div class="lead">
+    コンテナは隔離されているので、ホスト OS の周辺部品にはアクセスできません。<br>
+    だから <b>自分専用の周辺部品を持っています</b>。<br>
+    でもカーネル（心臓部）は <b>ホストと共有</b>。
+  </div>
+
+  <div class="note-box">
+    カーネルを共有するから、Docker は軽くて速い。
+    <span class="small">仮想マシン（VirtualBox 等）は OS をまるごとコピーするから重い。Docker はカーネルを借りるだけ。</span>
+  </div>
+</section>
+
+<!-- =============== 9. イメージとコンテナ =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">QUESTION 04</div>
+    <h2>「<span class="blue">イメージ</span>」と「<span class="blue">コンテナ</span>」<br>って何が違うの？</h2>
+  </div>
+
+  <div class="lead">
+    <b>イメージ = テンプレート（型）</b>。<br>
+    <b>コンテナ = イメージから作った実体（製品）</b>。
+  </div>
+
+  <div class="note-box">
+    たい焼きの型（イメージ）から、たい焼き（コンテナ）を何個でも作れるイメージです。
+  </div>
+</section>
+
+<!-- =============== 10. イメージ図解 =============== -->
+<section class="slide">
+  <h2>1つの型から<span class="blue">何個でも</span>作れる</h2>
+
+  <div class="body-2col">
+    <div>
+      <svg viewBox="0 0 380 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Image -->
+        <rect x="110" y="10" width="160" height="55" rx="8" fill="#f0f4fa" stroke="#2d5fa3" stroke-width="2.5"/>
+        <text x="190" y="35" text-anchor="middle" fill="#2d5fa3" font-family="Noto Sans JP" font-size="15" font-weight="900">MySQL イメージ</text>
+        <text x="190" y="54" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="11">テンプレート</text>
+
+        <!-- Arrows -->
+        <line x1="140" y1="65" x2="80" y2="110" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <line x1="190" y1="65" x2="190" y2="110" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <line x1="240" y1="65" x2="300" y2="110" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+        <!-- Container 1 -->
+        <rect x="20" y="110" width="120" height="70" rx="8" fill="#fff" stroke="#2d5fa3" stroke-width="2"/>
+        <text x="80" y="138" text-anchor="middle" fill="#2d5fa3" font-family="JetBrains Mono" font-size="11">CONTAINER</text>
+        <text x="80" y="162" text-anchor="middle" fill="#444" font-family="Noto Sans JP" font-size="14" font-weight="700">開発用</text>
+
+        <!-- Container 2 -->
+        <rect x="155" y="110" width="70" height="70" rx="8" fill="#fff" stroke="#2d5fa3" stroke-width="2"/>
+        <text x="190" y="138" text-anchor="middle" fill="#2d5fa3" font-family="JetBrains Mono" font-size="11">CONTAINER</text>
+        <text x="190" y="162" text-anchor="middle" fill="#444" font-family="Noto Sans JP" font-size="14" font-weight="700">テスト用</text>
+
+        <!-- Container 3 -->
+        <rect x="240" y="110" width="120" height="70" rx="8" fill="#fff" stroke="#2d5fa3" stroke-width="2"/>
+        <text x="300" y="138" text-anchor="middle" fill="#2d5fa3" font-family="JetBrains Mono" font-size="11">CONTAINER</text>
+        <text x="300" y="162" text-anchor="middle" fill="#444" font-family="Noto Sans JP" font-size="14" font-weight="700">本番用</text>
+
+        <text x="190" y="220" text-anchor="middle" fill="#444" font-family="Noto Sans JP" font-size="15" font-weight="700">全部同じ型から作られた同じ環境</text>
+      </svg>
+    </div>
+    <div>
+      <div class="qbox">
+        <div class="ql">DOCKER HUB</div>
+        <div class="qt">イメージの配布サイト</div>
+      </div>
+      <p>mysql, nginx, ruby など、すぐ使える公式イメージが揃っています。</p>
+      <p style="margin-top:14px;">慣れるまでは<b>公式イメージ</b>を使うのが安心です。</p>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 11. なぜコマンドが届かない？ =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">QUESTION 05</div>
+    <h2>なぜコンテナの<span class="red">外から</span><br>コマンドを打っても<span class="red">動かない</span>の？</h2>
+  </div>
+
+  <div class="lead">
+    コンテナの中と外は <b>完全に別の世界</b> だからです。
+  </div>
+
+  <div class="note-box">
+    MySQL も、そのコマンドも、全部コンテナの中にしか存在しない。<br>
+    だから外から打っても「そんなコマンドないよ」と言われる。
+  </div>
+</section>
+
+<!-- =============== 12. 外と中の図解 =============== -->
+<section class="slide">
+  <h2>外から打っても<span class="red">届かない</span></h2>
+
+  <div class="body-2col">
+    <div>
+      <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="380" height="280" rx="12" fill="#f8f8f8" stroke="#ddd" stroke-width="2"/>
+        <text x="30" y="38" fill="#888" font-family="JetBrains Mono" font-size="12">HOST (あなたの Mac / Windows)</text>
+
+        <!-- Terminal -->
+        <rect x="30" y="55" width="150" height="55" rx="6" fill="#fff" stroke="#c4341c" stroke-width="2"/>
+        <text x="105" y="78" text-anchor="middle" fill="#c4341c" font-family="Noto Sans JP" font-size="13" font-weight="700">ターミナル</text>
+        <text x="105" y="98" text-anchor="middle" fill="#c4341c" font-family="JetBrains Mono" font-size="11">$ mysql ...</text>
+
+        <!-- X -->
+        <text x="210" y="88" text-anchor="middle" fill="#c4341c" font-size="24" font-weight="900">X</text>
+
+        <!-- Container -->
+        <rect x="240" y="50" width="130" height="110" rx="8" fill="#fff" stroke="#2d5fa3" stroke-width="2"/>
+        <text x="305" y="75" text-anchor="middle" fill="#2d5fa3" font-family="Noto Sans JP" font-size="13" font-weight="700">コンテナ</text>
+        <text x="305" y="105" text-anchor="middle" fill="#444" font-family="Noto Sans JP" font-size="15" font-weight="900">MySQL</text>
+        <text x="305" y="128" text-anchor="middle" fill="#888" font-family="Noto Sans JP" font-size="12">+ データ</text>
+        <text x="305" y="148" text-anchor="middle" fill="#888" font-family="Noto Sans JP" font-size="12">+ コマンド</text>
+
+        <!-- Annotation -->
+        <text x="200" y="200" text-anchor="middle" fill="#444" font-family="Noto Sans JP" font-size="15" font-weight="700">mysql コマンドはコンテナの中にしかない</text>
+        <text x="200" y="230" text-anchor="middle" fill="#888" font-family="Noto Sans JP" font-size="14">だからホストで打っても「command not found」</text>
+        <text x="200" y="265" text-anchor="middle" fill="#2d5fa3" font-family="Noto Sans JP" font-size="15" font-weight="700">中に入るには docker exec を使う</text>
+      </svg>
+    </div>
+    <div>
+      <div class="warn-box">
+        <b>NG:</b> ホスト側で直接実行
+        <span class="small">$ mysql -u root → command not found</span>
+      </div>
+      <div class="note-box">
+        <b>OK:</b> コンテナに入ってから実行
+        <span class="small">$ docker exec -it my-db bash<br>→ コンテナの中に入る<br>→ その中で mysql -u root</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 13. コンテナは使い捨て =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">QUESTION 06</div>
+    <h2>コンテナって<br><span class="blue">ずっと使い続ける</span>もの？</h2>
+  </div>
+
+  <div class="lead">
+    いいえ。Docker の基本思想は <b>「作って、使って、捨てる」</b> です。
+  </div>
+
+  <div class="note-box">
+    更新が必要になったら、コンテナを修理するのではなく、<br>
+    新しいイメージから作り直す方が確実で速い。
+    <span class="small">紙コップのようなもの。汚れたら洗わずに捨てて、新しいのを使う。</span>
+  </div>
+</section>
+
+<!-- =============== 14. でもデータは？ =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">QUESTION 07</div>
+    <h2>コンテナを捨てたら<br><span class="red">データも消える</span>の？</h2>
+  </div>
+
+  <div class="lead">
+    はい。何もしなければ <b>コンテナの中のデータは一緒に消えます</b>。
+  </div>
+
+  <div class="lead">
+    でも、DB のデータや設定ファイルは消えたら困りますよね。<br>
+    そこで使うのが <b>Volume（ボリューム）</b>です。
+  </div>
+</section>
+
+<!-- =============== 15. Volume とは =============== -->
+<section class="slide">
+  <h2><span class="blue">Volume</span> = 外付けの保存場所</h2>
+
+  <div class="body-2col">
+    <div>
+      <p>
+        Volume は、コンテナの<b>外側（ホスト側のディスク）にデータを保存</b>する仕組みです。
+      </p>
+      <ul class="bullets">
+        <li>データは<b>ホスト側に保存</b>される</li>
+        <li>コンテナを消しても<b>データは残る</b></li>
+        <li>新しいコンテナに<b>つなぎ直せる</b></li>
+      </ul>
+      <p>
+        コンテナは入れ物、Volume は中身。<br>
+        <b>入れ物を捨てても、中身は出しておけば大丈夫。</b>
+      </p>
+    </div>
+    <div>
+      <svg viewBox="0 0 380 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Container -->
+        <rect x="110" y="10" width="160" height="80" rx="8" fill="#fff" stroke="#2d5fa3" stroke-width="2"/>
+        <text x="190" y="38" text-anchor="middle" fill="#2d5fa3" font-family="Noto Sans JP" font-size="14" font-weight="700">コンテナ</text>
+        <text x="190" y="60" text-anchor="middle" fill="#444" font-family="Noto Sans JP" font-size="15" font-weight="900">MySQL アプリ</text>
+        <text x="190" y="80" text-anchor="middle" fill="#888" font-family="Noto Sans JP" font-size="12">（プログラム本体）</text>
+
+        <!-- Cable -->
+        <line x1="190" y1="90" x2="190" y2="130" stroke="#2d5fa3" stroke-width="3"/>
+        <text x="240" y="115" fill="#2d5fa3" font-family="Noto Sans JP" font-size="12" font-weight="700">接続</text>
+
+        <!-- Volume -->
+        <rect x="90" y="130" width="200" height="60" rx="8" fill="#f0f4fa" stroke="#2d5fa3" stroke-width="2.5"/>
+        <text x="190" y="157" text-anchor="middle" fill="#2d5fa3" font-family="JetBrains Mono" font-size="14" font-weight="500">VOLUME</text>
+        <text x="190" y="178" text-anchor="middle" fill="#444" font-family="Noto Sans JP" font-size="14" font-weight="700">DB のデータ</text>
+
+        <!-- Host disk -->
+        <line x1="190" y1="190" x2="190" y2="215" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <rect x="90" y="215" width="200" height="35" rx="6" fill="#f8f8f8" stroke="#ddd" stroke-width="1.5"/>
+        <text x="190" y="237" text-anchor="middle" fill="#888" font-family="Noto Sans JP" font-size="13">ホストのディスク（実体はここ）</text>
+
+        <text x="190" y="275" text-anchor="middle" fill="#2d7a3e" font-family="Noto Sans JP" font-size="14" font-weight="700">コンテナを消しても Volume は残る</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 16. Volume を消すな =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">QUESTION 08</div>
+    <h2>なぜ Volume を<br><span class="red">消してはいけない</span>の？</h2>
+  </div>
+
+  <div class="lead">
+    コンテナやイメージは、いつでも作り直せます。<br>
+    でも <b>Volume の中身（データ）は、消したら二度と戻りません。</b>
+  </div>
+
+  <div class="warn-box">
+    Volume を消す = DB のデータを完全に消す、ということ。
+    <span class="small">コンテナは紙コップ、Volume は中身の飲み物。コップは捨てていいけど、中身ごと捨てたら終わり。</span>
+  </div>
+</section>
+
+<!-- =============== 17. 消していいもの =============== -->
+<section class="slide">
+  <h2>消していいもの、<span class="red">ダメなもの</span></h2>
+
+  <div style="max-width:700px;">
+    <div class="qbox" style="margin-bottom:16px;">
+      <div class="ql" style="color:#2d7a3e;">OK</div>
+      <div class="qt">コンテナ → いつでも作り直せる</div>
+    </div>
+
+    <div class="qbox" style="margin-bottom:16px;">
+      <div class="ql" style="color:#2d7a3e;">OK</div>
+      <div class="qt">イメージ → Docker Hub から再取得できる</div>
+    </div>
+
+    <div class="qbox" style="margin-bottom:16px; background:#fdf5f0; border-color:#c4341c;">
+      <div class="ql" style="color:#c4341c;">NG</div>
+      <div class="qt">Volume → 消したらデータが完全に消失する</div>
+    </div>
+  </div>
+
+  <div class="note-box" style="margin-top:auto;">
+    特に <b>docker system prune --volumes</b> は全 Volume を一括削除するので要注意。
+  </div>
+</section>
+
+<!-- =============== 18. コマンドの意味 =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">QUESTION 09</div>
+    <h2>よく使うコマンド、<br><span class="blue">何をしてるの？</span></h2>
+  </div>
+
+  <div class="recap-list">
+    <div class="recap-item">
+      <div class="n">1</div>
+      <div class="t"><b>docker run</b> → イメージからコンテナを作って起動する</div>
+    </div>
+    <div class="recap-item">
+      <div class="n">2</div>
+      <div class="t"><b>docker exec -it ... bash</b> → 動いているコンテナの中に入る</div>
+    </div>
+    <div class="recap-item">
+      <div class="n">3</div>
+      <div class="t"><b>docker stop</b> → コンテナを停止する</div>
+    </div>
+    <div class="recap-item">
+      <div class="n">4</div>
+      <div class="t"><b>docker compose up</b> → 複数コンテナをまとめて起動する</div>
+    </div>
+    <div class="recap-item">
+      <div class="n">5</div>
+      <div class="t"><b>docker build</b> → Dockerfile からイメージを作る</div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 19. Mac / Windows =============== -->
+<section class="slide">
+  <div class="chapter-hero">
+    <div class="ch-num">QUESTION 10</div>
+    <h2>Mac や Windows でも<br><span class="blue">動くの？</span></h2>
+  </div>
+
+  <div class="lead">
+    Docker は Linux の仕組みを使っています。<br>
+    Mac や Windows では <b>Docker Desktop</b> が裏で軽量な Linux を動かしてくれます。
+  </div>
+
+  <div class="note-box">
+    Docker Desktop をインストールすれば、あとは意識する必要なし。
+    <span class="small">Windows の場合は WSL2（Windows Subsystem for Linux）が必要です。</span>
+  </div>
+</section>
+
+<!-- =============== 20. まとめ =============== -->
+<section class="slide">
+  <h2>今日の<span class="blue">まとめ</span></h2>
+
+  <div class="recap-list">
+    <div class="recap-item">
+      <div class="n">1</div>
+      <div class="t">Docker は<b>プログラムを隔離する箱（コンテナ）</b>を作る仕組み</div>
+    </div>
+    <div class="recap-item">
+      <div class="n">2</div>
+      <div class="t">コンテナは <b>OS のカーネルを共有</b>するから軽くて速い</div>
+    </div>
+    <div class="recap-item">
+      <div class="n">3</div>
+      <div class="t">コンテナの<b>外からコマンドは届かない</b>。中に入るには docker exec</div>
+    </div>
+    <div class="recap-item">
+      <div class="n">4</div>
+      <div class="t">コンテナは<b>使い捨て</b>。イメージから何度でも作り直せる</div>
+    </div>
+    <div class="recap-item">
+      <div class="n">5</div>
+      <div class="t"><b>Volume だけは消さない</b>。コンテナは消していいけど、データは戻らない</div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 21. 締め =============== -->
+<section class="slide cover">
+  <div class="tag">DOCKER</div>
+  <h1>呪文が<span class="blue">言葉</span>に変わったら<br>もう怖くない。</h1>
+  <div class="sub">
+    まずは docker exec で中に入ってみよう。<br>
+    <span style="font-size:22px;color:#888;font-weight:500;display:block;margin-top:14px;">— ご清聴ありがとうございました</span>
+  </div>
+</section>
+
+<div class="page"><span class="cur" id="cur">1</span> / <span id="total">21</span></div>
+<div class="nav">
+  <button id="prev">← 前</button>
+  <button id="next">次 →</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let idx = 0;
+const total = slides.length;
+document.getElementById('total').textContent = total;
+
+function show(i) {
+  slides[idx].classList.remove('active');
+  idx = (i + total) % total;
+  slides[idx].classList.add('active');
+  document.getElementById('cur').textContent = idx + 1;
+  slides[idx].scrollTop = 0;
+}
+
+document.getElementById('next').addEventListener('click', () => show(idx + 1));
+document.getElementById('prev').addEventListener('click', () => show(idx - 1));
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+    e.preventDefault();
+    show(idx + 1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+    e.preventDefault();
+    show(idx - 1);
+  }
+});
+</script>
+</body>
+</html>
